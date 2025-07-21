@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { Player } from "./Player";
 import { BubbleSortVisualizer } from "./BubbleSort";
+import { InsertionSortVisualizer } from "./InsertionSort";
 import gsap from "gsap";
 
 // Texture
@@ -105,11 +106,31 @@ spotMesh.rotation.x = -Math.PI / 2;
 spotMesh.receiveShadow = true;
 scene.add(spotMesh);
 
+const insertionSpotMesh = new THREE.Mesh(
+  new THREE.PlaneGeometry(3, 3),
+  new THREE.MeshStandardMaterial({
+    color: "orange",
+    transparent: true,
+    opacity: 0.5,
+  })
+);
+insertionSpotMesh.position.set(-5, 0.005, 5);
+insertionSpotMesh.rotation.x = -Math.PI / 2;
+insertionSpotMesh.receiveShadow = true;
+scene.add(insertionSpotMesh);
+
 const gltfLoader = new GLTFLoader();
 
 const bubbleSortVisualizer = new BubbleSortVisualizer({
   scene,
   x: 5,
+  y: -1.3,
+  z: 2,
+});
+
+const insertionSortVisualizer = new InsertionSortVisualizer({
+  scene,
+  x: -5,
   y: -1.3,
   z: 2,
 });
@@ -185,6 +206,30 @@ function draw() {
         console.log("버블 정렬 숨기기");
         bubbleSortVisualizer.hide();
         spotMesh.material.color.set("yellow");
+        gsap.to(camera.position, {
+          duration: 1,
+          y: 5,
+        });
+      }
+
+      if (
+        Math.abs(insertionSpotMesh.position.x - player.modelMesh.position.x) < 1.5 &&
+        Math.abs(insertionSpotMesh.position.z - player.modelMesh.position.z) < 1.5
+      ) {
+        if (!insertionSortVisualizer.visible) {
+          console.log("삽입 정렬 시작");
+          insertionSortVisualizer.show();
+          insertionSortVisualizer.startInsertionSort();
+          insertionSpotMesh.material.color.set("crimson");
+          gsap.to(camera.position, {
+            duration: 1,
+            y: 3,
+          });
+        }
+      } else if (insertionSortVisualizer.visible) {
+        console.log("삽입 정렬 숨기기");
+        insertionSortVisualizer.hide();
+        insertionSpotMesh.material.color.set("orange");
         gsap.to(camera.position, {
           duration: 1,
           y: 5,
