@@ -6,6 +6,7 @@ import { InsertionSortVisualizer } from "./InsertionSort";
 import { SelectionSortVisualizer } from "./SelectionSort";
 import { QuickSortVisualizer } from "./QuickSort";
 import { HeapSortVisualizer } from "./HeapSort";
+import { MergeSortVisualizer } from "./MergeSort";
 import gsap from "gsap";
 
 // Texture
@@ -156,10 +157,23 @@ const heapSpotMesh = new THREE.Mesh(
     opacity: 0.5,
   })
 );
-heapSpotMesh.position.set(0, 0.005, 0);
+heapSpotMesh.position.set(0, 0.005, -5);
 heapSpotMesh.rotation.x = -Math.PI / 2;
 heapSpotMesh.receiveShadow = true;
 scene.add(heapSpotMesh);
+
+const mergeSpotMesh = new THREE.Mesh(
+  new THREE.PlaneGeometry(3, 3),
+  new THREE.MeshStandardMaterial({
+    color: "indigo",
+    transparent: true,
+    opacity: 0.5,
+  })
+);
+mergeSpotMesh.position.set(0, 0.005, 5);
+mergeSpotMesh.rotation.x = -Math.PI / 2;
+mergeSpotMesh.receiveShadow = true;
+scene.add(mergeSpotMesh);
 
 const gltfLoader = new GLTFLoader();
 
@@ -196,6 +210,13 @@ const heapSortVisualizer = new HeapSortVisualizer({
   x: 0,
   y: -1.3,
   z: -3,
+});
+
+const mergeSortVisualizer = new MergeSortVisualizer({
+  scene,
+  x: 0,
+  y: -1.3,
+  z: 2,
 });
 
 const player = new Player({
@@ -276,8 +297,10 @@ function draw() {
       }
 
       if (
-        Math.abs(insertionSpotMesh.position.x - player.modelMesh.position.x) < 1.5 &&
-        Math.abs(insertionSpotMesh.position.z - player.modelMesh.position.z) < 1.5
+        Math.abs(insertionSpotMesh.position.x - player.modelMesh.position.x) <
+          1.5 &&
+        Math.abs(insertionSpotMesh.position.z - player.modelMesh.position.z) <
+          1.5
       ) {
         if (!insertionSortVisualizer.visible) {
           console.log("삽입 정렬 시작");
@@ -300,8 +323,10 @@ function draw() {
       }
 
       if (
-        Math.abs(selectionSpotMesh.position.x - player.modelMesh.position.x) < 1.5 &&
-        Math.abs(selectionSpotMesh.position.z - player.modelMesh.position.z) < 1.5
+        Math.abs(selectionSpotMesh.position.x - player.modelMesh.position.x) <
+          1.5 &&
+        Math.abs(selectionSpotMesh.position.z - player.modelMesh.position.z) <
+          1.5
       ) {
         if (!selectionSortVisualizer.visible) {
           console.log("선택 정렬 시작");
@@ -324,7 +349,8 @@ function draw() {
       }
 
       if (
-        Math.abs(quickSpotMesh.position.x - player.modelMesh.position.x) < 1.5 &&
+        Math.abs(quickSpotMesh.position.x - player.modelMesh.position.x) <
+          1.5 &&
         Math.abs(quickSpotMesh.position.z - player.modelMesh.position.z) < 1.5
       ) {
         if (!quickSortVisualizer.visible) {
@@ -365,6 +391,31 @@ function draw() {
         console.log("힙 정렬 숨기기");
         heapSortVisualizer.hide();
         heapSpotMesh.material.color.set("brown");
+        gsap.to(camera.position, {
+          duration: 1,
+          y: 5,
+        });
+      }
+
+      if (
+        Math.abs(mergeSpotMesh.position.x - player.modelMesh.position.x) <
+          1.5 &&
+        Math.abs(mergeSpotMesh.position.z - player.modelMesh.position.z) < 1.5
+      ) {
+        if (!mergeSortVisualizer.visible) {
+          console.log("병합 정렬 시작");
+          mergeSortVisualizer.show();
+          mergeSortVisualizer.startMergeSort();
+          mergeSpotMesh.material.color.set("purple");
+          gsap.to(camera.position, {
+            duration: 1,
+            y: 3,
+          });
+        }
+      } else if (mergeSortVisualizer.visible) {
+        console.log("병합 정렬 숨기기");
+        mergeSortVisualizer.hide();
+        mergeSpotMesh.material.color.set("indigo");
         gsap.to(camera.position, {
           duration: 1,
           y: 5,
