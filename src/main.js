@@ -5,6 +5,7 @@ import { BubbleSortVisualizer } from "./BubbleSort";
 import { InsertionSortVisualizer } from "./InsertionSort";
 import { SelectionSortVisualizer } from "./SelectionSort";
 import { QuickSortVisualizer } from "./QuickSort";
+import { HeapSortVisualizer } from "./HeapSort";
 import gsap from "gsap";
 
 // Texture
@@ -147,6 +148,19 @@ quickSpotMesh.rotation.x = -Math.PI / 2;
 quickSpotMesh.receiveShadow = true;
 scene.add(quickSpotMesh);
 
+const heapSpotMesh = new THREE.Mesh(
+  new THREE.PlaneGeometry(3, 3),
+  new THREE.MeshStandardMaterial({
+    color: "brown",
+    transparent: true,
+    opacity: 0.5,
+  })
+);
+heapSpotMesh.position.set(0, 0.005, 0);
+heapSpotMesh.rotation.x = -Math.PI / 2;
+heapSpotMesh.receiveShadow = true;
+scene.add(heapSpotMesh);
+
 const gltfLoader = new GLTFLoader();
 
 const bubbleSortVisualizer = new BubbleSortVisualizer({
@@ -175,6 +189,13 @@ const quickSortVisualizer = new QuickSortVisualizer({
   x: -5,
   y: -1.3,
   z: -8,
+});
+
+const heapSortVisualizer = new HeapSortVisualizer({
+  scene,
+  x: 0,
+  y: -1.3,
+  z: -3,
 });
 
 const player = new Player({
@@ -320,6 +341,30 @@ function draw() {
         console.log("퀵 정렬 숨기기");
         quickSortVisualizer.hide();
         quickSpotMesh.material.color.set("teal");
+        gsap.to(camera.position, {
+          duration: 1,
+          y: 5,
+        });
+      }
+
+      if (
+        Math.abs(heapSpotMesh.position.x - player.modelMesh.position.x) < 1.5 &&
+        Math.abs(heapSpotMesh.position.z - player.modelMesh.position.z) < 1.5
+      ) {
+        if (!heapSortVisualizer.visible) {
+          console.log("힙 정렬 시작");
+          heapSortVisualizer.show();
+          heapSortVisualizer.startHeapSort();
+          heapSpotMesh.material.color.set("chocolate");
+          gsap.to(camera.position, {
+            duration: 1,
+            y: 3,
+          });
+        }
+      } else if (heapSortVisualizer.visible) {
+        console.log("힙 정렬 숨기기");
+        heapSortVisualizer.hide();
+        heapSpotMesh.material.color.set("brown");
         gsap.to(camera.position, {
           duration: 1,
           y: 5,
