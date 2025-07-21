@@ -3,6 +3,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { Player } from "./Player";
 import { BubbleSortVisualizer } from "./BubbleSort";
 import { InsertionSortVisualizer } from "./InsertionSort";
+import { SelectionSortVisualizer } from "./SelectionSort";
 import gsap from "gsap";
 
 // Texture
@@ -119,6 +120,19 @@ insertionSpotMesh.rotation.x = -Math.PI / 2;
 insertionSpotMesh.receiveShadow = true;
 scene.add(insertionSpotMesh);
 
+const selectionSpotMesh = new THREE.Mesh(
+  new THREE.PlaneGeometry(3, 3),
+  new THREE.MeshStandardMaterial({
+    color: "purple",
+    transparent: true,
+    opacity: 0.5,
+  })
+);
+selectionSpotMesh.position.set(5, 0.005, -5);
+selectionSpotMesh.rotation.x = -Math.PI / 2;
+selectionSpotMesh.receiveShadow = true;
+scene.add(selectionSpotMesh);
+
 const gltfLoader = new GLTFLoader();
 
 const bubbleSortVisualizer = new BubbleSortVisualizer({
@@ -133,6 +147,13 @@ const insertionSortVisualizer = new InsertionSortVisualizer({
   x: -5,
   y: -1.3,
   z: 2,
+});
+
+const selectionSortVisualizer = new SelectionSortVisualizer({
+  scene,
+  x: 5,
+  y: -1.3,
+  z: -8,
 });
 
 const player = new Player({
@@ -230,6 +251,30 @@ function draw() {
         console.log("삽입 정렬 숨기기");
         insertionSortVisualizer.hide();
         insertionSpotMesh.material.color.set("orange");
+        gsap.to(camera.position, {
+          duration: 1,
+          y: 5,
+        });
+      }
+
+      if (
+        Math.abs(selectionSpotMesh.position.x - player.modelMesh.position.x) < 1.5 &&
+        Math.abs(selectionSpotMesh.position.z - player.modelMesh.position.z) < 1.5
+      ) {
+        if (!selectionSortVisualizer.visible) {
+          console.log("선택 정렬 시작");
+          selectionSortVisualizer.show();
+          selectionSortVisualizer.startSelectionSort();
+          selectionSpotMesh.material.color.set("magenta");
+          gsap.to(camera.position, {
+            duration: 1,
+            y: 3,
+          });
+        }
+      } else if (selectionSortVisualizer.visible) {
+        console.log("선택 정렬 숨기기");
+        selectionSortVisualizer.hide();
+        selectionSpotMesh.material.color.set("purple");
         gsap.to(camera.position, {
           duration: 1,
           y: 5,
