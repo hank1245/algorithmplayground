@@ -17,7 +17,7 @@ export class BubbleSortVisualizer {
 		this.group = new THREE.Group();
 
 		this.createBars();
-		this.group.position.set(this.x, this.y, this.z);
+		this.group.position.set(this.x, this.y - 1.5, this.z);
 		this.scene.add(this.group);
 	}
 
@@ -113,7 +113,7 @@ export class BubbleSortVisualizer {
 		this.visible = true;
 		gsap.to(this.group.position, {
 			duration: 1,
-			y: this.y + 1,
+			y: this.y + 1.5,
 			ease: "Bounce.easeOut",
 		});
 	}
@@ -122,7 +122,7 @@ export class BubbleSortVisualizer {
 		this.visible = false;
 		gsap.to(this.group.position, {
 			duration: 0.5,
-			y: this.y,
+			y: this.y - 1.5,
 		});
 	}
 }
