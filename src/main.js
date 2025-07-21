@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { Player } from "./Player";
-import { BubbleSortVisualizer } from "./House";
+import { BubbleSortVisualizer } from "./BubbleSort";
 import gsap from "gsap";
 
 // Texture
