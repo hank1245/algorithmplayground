@@ -4,6 +4,7 @@ import { Player } from "./Player";
 import { BubbleSortVisualizer } from "./BubbleSort";
 import { InsertionSortVisualizer } from "./InsertionSort";
 import { SelectionSortVisualizer } from "./SelectionSort";
+import { QuickSortVisualizer } from "./QuickSort";
 import gsap from "gsap";
 
 // Texture
@@ -133,6 +134,19 @@ selectionSpotMesh.rotation.x = -Math.PI / 2;
 selectionSpotMesh.receiveShadow = true;
 scene.add(selectionSpotMesh);
 
+const quickSpotMesh = new THREE.Mesh(
+  new THREE.PlaneGeometry(3, 3),
+  new THREE.MeshStandardMaterial({
+    color: "teal",
+    transparent: true,
+    opacity: 0.5,
+  })
+);
+quickSpotMesh.position.set(-5, 0.005, -5);
+quickSpotMesh.rotation.x = -Math.PI / 2;
+quickSpotMesh.receiveShadow = true;
+scene.add(quickSpotMesh);
+
 const gltfLoader = new GLTFLoader();
 
 const bubbleSortVisualizer = new BubbleSortVisualizer({
@@ -152,6 +166,13 @@ const insertionSortVisualizer = new InsertionSortVisualizer({
 const selectionSortVisualizer = new SelectionSortVisualizer({
   scene,
   x: 5,
+  y: -1.3,
+  z: -8,
+});
+
+const quickSortVisualizer = new QuickSortVisualizer({
+  scene,
+  x: -5,
   y: -1.3,
   z: -8,
 });
@@ -275,6 +296,30 @@ function draw() {
         console.log("선택 정렬 숨기기");
         selectionSortVisualizer.hide();
         selectionSpotMesh.material.color.set("purple");
+        gsap.to(camera.position, {
+          duration: 1,
+          y: 5,
+        });
+      }
+
+      if (
+        Math.abs(quickSpotMesh.position.x - player.modelMesh.position.x) < 1.5 &&
+        Math.abs(quickSpotMesh.position.z - player.modelMesh.position.z) < 1.5
+      ) {
+        if (!quickSortVisualizer.visible) {
+          console.log("퀵 정렬 시작");
+          quickSortVisualizer.show();
+          quickSortVisualizer.startQuickSort();
+          quickSpotMesh.material.color.set("cyan");
+          gsap.to(camera.position, {
+            duration: 1,
+            y: 3,
+          });
+        }
+      } else if (quickSortVisualizer.visible) {
+        console.log("퀵 정렬 숨기기");
+        quickSortVisualizer.hide();
+        quickSpotMesh.material.color.set("teal");
         gsap.to(camera.position, {
           duration: 1,
           y: 5,
