@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { Player } from "./Player";
-import { House } from "./House";
+import { BubbleSortVisualizer } from "./House";
 import gsap from "gsap";
 
 // Texture
@@ -107,10 +107,8 @@ scene.add(spotMesh);
 
 const gltfLoader = new GLTFLoader();
 
-const house = new House({
-  gltfLoader,
+const bubbleSortVisualizer = new BubbleSortVisualizer({
   scene,
-  modelSrc: "/models/house.glb",
   x: 5,
   y: -1.3,
   z: 2,
@@ -173,28 +171,20 @@ function draw() {
         Math.abs(spotMesh.position.x - player.modelMesh.position.x) < 1.5 &&
         Math.abs(spotMesh.position.z - player.modelMesh.position.z) < 1.5
       ) {
-        if (!house.visible) {
-          console.log("나와");
-          house.visible = true;
+        if (!bubbleSortVisualizer.visible) {
+          console.log("버블 정렬 시작");
+          bubbleSortVisualizer.show();
+          bubbleSortVisualizer.startBubbleSort();
           spotMesh.material.color.set("seagreen");
-          gsap.to(house.modelMesh.position, {
-            duration: 1,
-            y: 3,
-            ease: "Bounce.easeOut",
-          });
           gsap.to(camera.position, {
             duration: 1,
             y: 3,
           });
         }
-      } else if (house.visible) {
-        console.log("들어가");
-        house.visible = false;
+      } else if (bubbleSortVisualizer.visible) {
+        console.log("버블 정렬 숨기기");
+        bubbleSortVisualizer.hide();
         spotMesh.material.color.set("yellow");
-        gsap.to(house.modelMesh.position, {
-          duration: 0.5,
-          y: -1.3,
-        });
         gsap.to(camera.position, {
           duration: 1,
           y: 5,
