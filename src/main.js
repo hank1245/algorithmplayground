@@ -19,6 +19,15 @@ floorTexture.wrapT = THREE.RepeatWrapping;
 floorTexture.repeat.x = 10;
 floorTexture.repeat.y = 10;
 
+const bubbleSortTexture = textureLoader.load("/images/bubbleSort.png");
+const insertionSortTexture = textureLoader.load("/images/insertionSort.png");
+const selectionSortTexture = textureLoader.load("/images/selectionSort.png");
+const quickSortTexture = textureLoader.load("/images/quickSort.png");
+const heapSortTexture = textureLoader.load("/images/heapSort.png");
+const mergeSortTexture = textureLoader.load("/images/mergeSort.png");
+const hanoiTowerTexture = textureLoader.load("/images/hanoiTower.png");
+const boidsTexture = textureLoader.load("/images/boids.png");
+
 // Renderer
 const canvas = document.querySelector("#three-canvas");
 const renderer = new THREE.WebGLRenderer({
@@ -102,9 +111,9 @@ scene.add(pointerMesh);
 const spotMesh = new THREE.Mesh(
   new THREE.PlaneGeometry(3, 3),
   new THREE.MeshStandardMaterial({
-    color: "yellow",
+    map: bubbleSortTexture,
     transparent: true,
-    opacity: 0.5,
+    opacity: 0.8,
   })
 );
 // 3x3 grid layout spots with center (0,0) empty
@@ -116,9 +125,9 @@ scene.add(spotMesh);
 const insertionSpotMesh = new THREE.Mesh(
   new THREE.PlaneGeometry(3, 3),
   new THREE.MeshStandardMaterial({
-    color: "orange",
+    map: insertionSortTexture,
     transparent: true,
-    opacity: 0.5,
+    opacity: 0.8,
   })
 );
 insertionSpotMesh.position.set(0, 0.005, 8);
@@ -129,9 +138,9 @@ scene.add(insertionSpotMesh);
 const selectionSpotMesh = new THREE.Mesh(
   new THREE.PlaneGeometry(3, 3),
   new THREE.MeshStandardMaterial({
-    color: "purple",
+    map: selectionSortTexture,
     transparent: true,
-    opacity: 0.5,
+    opacity: 0.8,
   })
 );
 selectionSpotMesh.position.set(8, 0.005, 8);
@@ -142,9 +151,9 @@ scene.add(selectionSpotMesh);
 const quickSpotMesh = new THREE.Mesh(
   new THREE.PlaneGeometry(3, 3),
   new THREE.MeshStandardMaterial({
-    color: "teal",
+    map: quickSortTexture,
     transparent: true,
-    opacity: 0.5,
+    opacity: 0.8,
   })
 );
 quickSpotMesh.position.set(-8, 0.005, 0);
@@ -155,9 +164,9 @@ scene.add(quickSpotMesh);
 const heapSpotMesh = new THREE.Mesh(
   new THREE.PlaneGeometry(3, 3),
   new THREE.MeshStandardMaterial({
-    color: "brown",
+    map: heapSortTexture,
     transparent: true,
-    opacity: 0.5,
+    opacity: 0.8,
   })
 );
 heapSpotMesh.position.set(8, 0.005, 0);
@@ -168,9 +177,9 @@ scene.add(heapSpotMesh);
 const mergeSpotMesh = new THREE.Mesh(
   new THREE.PlaneGeometry(3, 3),
   new THREE.MeshStandardMaterial({
-    color: "indigo",
+    map: mergeSortTexture,
     transparent: true,
-    opacity: 0.5,
+    opacity: 0.8,
   })
 );
 mergeSpotMesh.position.set(-8, 0.005, -8);
@@ -181,9 +190,9 @@ scene.add(mergeSpotMesh);
 const hanoiSpotMesh = new THREE.Mesh(
   new THREE.PlaneGeometry(3, 3),
   new THREE.MeshStandardMaterial({
-    color: "gold",
+    map: hanoiTowerTexture,
     transparent: true,
-    opacity: 0.5,
+    opacity: 0.8,
   })
 );
 hanoiSpotMesh.position.set(0, 0.005, -8);
@@ -194,9 +203,9 @@ scene.add(hanoiSpotMesh);
 const boidsSpotMesh = new THREE.Mesh(
   new THREE.PlaneGeometry(3, 3),
   new THREE.MeshStandardMaterial({
-    color: "cyan",
+    map: boidsTexture,
     transparent: true,
-    opacity: 0.5,
+    opacity: 0.8,
   })
 );
 boidsSpotMesh.position.set(8, 0.005, -8);
@@ -333,7 +342,7 @@ function draw() {
       } else if (bubbleSortVisualizer.visible) {
         console.log("버블 정렬 숨기기");
         bubbleSortVisualizer.hide();
-        spotMesh.material.color.set("yellow");
+        spotMesh.material.color.set("white");
         gsap.to(camera.position, {
           duration: 1,
           y: 5,
@@ -359,7 +368,7 @@ function draw() {
       } else if (insertionSortVisualizer.visible) {
         console.log("삽입 정렬 숨기기");
         insertionSortVisualizer.hide();
-        insertionSpotMesh.material.color.set("orange");
+        insertionSpotMesh.material.color.set("white");
         gsap.to(camera.position, {
           duration: 1,
           y: 5,
@@ -385,7 +394,7 @@ function draw() {
       } else if (selectionSortVisualizer.visible) {
         console.log("선택 정렬 숨기기");
         selectionSortVisualizer.hide();
-        selectionSpotMesh.material.color.set("purple");
+        selectionSpotMesh.material.color.set("white");
         gsap.to(camera.position, {
           duration: 1,
           y: 5,
@@ -410,7 +419,7 @@ function draw() {
       } else if (quickSortVisualizer.visible) {
         console.log("퀵 정렬 숨기기");
         quickSortVisualizer.hide();
-        quickSpotMesh.material.color.set("teal");
+        quickSpotMesh.material.color.set("white");
         gsap.to(camera.position, {
           duration: 1,
           y: 5,
@@ -434,7 +443,7 @@ function draw() {
       } else if (heapSortVisualizer.visible) {
         console.log("힙 정렬 숨기기");
         heapSortVisualizer.hide();
-        heapSpotMesh.material.color.set("brown");
+        heapSpotMesh.material.color.set("white");
         gsap.to(camera.position, {
           duration: 1,
           y: 5,
@@ -459,7 +468,7 @@ function draw() {
       } else if (mergeSortVisualizer.visible) {
         console.log("병합 정렬 숨기기");
         mergeSortVisualizer.hide();
-        mergeSpotMesh.material.color.set("indigo");
+        mergeSpotMesh.material.color.set("white");
         gsap.to(camera.position, {
           duration: 1,
           y: 5,
@@ -484,7 +493,7 @@ function draw() {
       } else if (hanoiTowerVisualizer.visible) {
         console.log("하노이의 탑 숨기기");
         hanoiTowerVisualizer.hide();
-        hanoiSpotMesh.material.color.set("gold");
+        hanoiSpotMesh.material.color.set("white");
         gsap.to(camera.position, {
           duration: 1,
           y: 5,
@@ -508,7 +517,7 @@ function draw() {
       } else if (boidsVisualizer.visible) {
         console.log("Boids 알고리즘 숨기기");
         boidsVisualizer.hide();
-        boidsSpotMesh.material.color.set("cyan");
+        boidsSpotMesh.material.color.set("white");
         gsap.to(camera.position, {
           duration: 1,
           y: 5,
