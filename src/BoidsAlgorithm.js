@@ -320,4 +320,13 @@ export class BoidsVisualizer {
     this.radius = Math.max(2, Math.min(8, radius));
     this.createBoundary();
   }
+
+  stop() {
+    this.stopBoidsAnimation();
+  }
+
+  reset() {
+    this.stop();
+    this.createBoids();
+  }
 }

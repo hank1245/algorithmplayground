@@ -290,7 +290,9 @@ const player = new Player({
   scene,
   meshes,
   gltfLoader,
-  modelSrc: "/models/ilbuni.glb",
+  modelSrc: "/models/character.glb", // GLB 모델 경로
+  idleAnimationSrc: "/models/idle.fbx", // Idle FBX 애니메이션 경로
+  walkAnimationSrc: "/models/walk.fbx", // Walk FBX 애니메이션 경로
 });
 
 const raycaster = new THREE.Raycaster();
@@ -328,8 +330,9 @@ function draw() {
       camera.position.x = cameraPosition.x + player.modelMesh.position.x;
       camera.position.z = cameraPosition.z + player.modelMesh.position.z;
 
-      player.actions[0].stop();
-      player.actions[1].play();
+      if (player.isReady) {
+        player.fadeToAction(1, 0.2); // Walk 애니메이션으로 전환
+      }
 
       if (
         Math.abs(destinationPoint.x - player.modelMesh.position.x) < 0.03 &&
@@ -557,8 +560,9 @@ function draw() {
       }
     } else {
       // 서 있는 상태
-      player.actions[1].stop();
-      player.actions[0].play();
+      if (player.isReady) {
+        player.fadeToAction(0, 0.2); // Idle 애니메이션으로 전환
+      }
     }
   }
 
