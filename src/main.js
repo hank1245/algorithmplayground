@@ -8,6 +8,7 @@ import { QuickSortVisualizer } from "./QuickSort";
 import { HeapSortVisualizer } from "./HeapSort";
 import { MergeSortVisualizer } from "./MergeSort";
 import { HanoiTowerVisualizer } from "./HanoiTower";
+import { BoidsVisualizer } from "./BoidsAlgorithm";
 import gsap from "gsap";
 
 // Texture
@@ -42,7 +43,7 @@ const camera = new THREE.OrthographicCamera(
   1000
 );
 
-const cameraPosition = new THREE.Vector3(1, 5, 5);
+const cameraPosition = new THREE.Vector3(1, 7, 8);
 camera.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z);
 camera.zoom = 0.2;
 camera.updateProjectionMatrix();
@@ -189,6 +190,19 @@ hanoiSpotMesh.rotation.x = -Math.PI / 2;
 hanoiSpotMesh.receiveShadow = true;
 scene.add(hanoiSpotMesh);
 
+const boidsSpotMesh = new THREE.Mesh(
+  new THREE.PlaneGeometry(3, 3),
+  new THREE.MeshStandardMaterial({
+    color: "cyan",
+    transparent: true,
+    opacity: 0.5,
+  })
+);
+boidsSpotMesh.position.set(-10, 0.005, 0);
+boidsSpotMesh.rotation.x = -Math.PI / 2;
+boidsSpotMesh.receiveShadow = true;
+scene.add(boidsSpotMesh);
+
 const gltfLoader = new GLTFLoader();
 
 const bubbleSortVisualizer = new BubbleSortVisualizer({
@@ -236,6 +250,13 @@ const mergeSortVisualizer = new MergeSortVisualizer({
 const hanoiTowerVisualizer = new HanoiTowerVisualizer({
   scene,
   x: 10,
+  y: -1.3,
+  z: 0,
+});
+
+const boidsVisualizer = new BoidsVisualizer({
+  scene,
+  x: -10,
   y: -1.3,
   z: 0,
 });
@@ -462,6 +483,30 @@ function draw() {
         console.log("하노이의 탑 숨기기");
         hanoiTowerVisualizer.hide();
         hanoiSpotMesh.material.color.set("gold");
+        gsap.to(camera.position, {
+          duration: 1,
+          y: 5,
+        });
+      }
+
+      if (
+        Math.abs(boidsSpotMesh.position.x - player.modelMesh.position.x) <
+          1.5 &&
+        Math.abs(boidsSpotMesh.position.z - player.modelMesh.position.z) < 1.5
+      ) {
+        if (!boidsVisualizer.visible) {
+          console.log("Boids 알고리즘 시작");
+          boidsVisualizer.show();
+          boidsSpotMesh.material.color.set("lightblue");
+          gsap.to(camera.position, {
+            duration: 1,
+            y: 3,
+          });
+        }
+      } else if (boidsVisualizer.visible) {
+        console.log("Boids 알고리즘 숨기기");
+        boidsVisualizer.hide();
+        boidsSpotMesh.material.color.set("cyan");
         gsap.to(camera.position, {
           duration: 1,
           y: 5,
