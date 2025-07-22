@@ -9,6 +9,7 @@ import { HeapSortVisualizer } from "./HeapSort";
 import { MergeSortVisualizer } from "./MergeSort";
 import { HanoiTowerVisualizer } from "./HanoiTower";
 import { BoidsVisualizer } from "./BoidsAlgorithm";
+import { algorithmDescriptions } from "./AlgorithmDescriptions";
 import gsap from "gsap";
 
 // Texture
@@ -295,6 +296,56 @@ const player = new Player({
   walkAnimationSrc: "/models/walk.fbx", // Walk FBX 애니메이션 경로
 });
 
+// Description UI elements
+const descriptionElement = document.getElementById('algorithm-description');
+const algorithmNameElement = document.getElementById('algorithm-name');
+const timeComplexityElement = document.getElementById('time-complexity');
+const spaceComplexityElement = document.getElementById('space-complexity');
+const descriptionTextElement = document.getElementById('algorithm-description-text');
+const worksTitleElement = document.getElementById('works-title');
+const howItWorksListElement = document.getElementById('how-it-works-list');
+
+let currentAlgorithm = null;
+
+function showDescription(algorithmKey) {
+  const algorithm = algorithmDescriptions[algorithmKey];
+  if (!algorithm || currentAlgorithm === algorithmKey) return;
+
+  currentAlgorithm = algorithmKey;
+  
+  algorithmNameElement.textContent = algorithm.name;
+  timeComplexityElement.textContent = algorithm.timeComplexity;
+  spaceComplexityElement.textContent = algorithm.spaceComplexity;
+  descriptionTextElement.textContent = algorithm.description;
+  
+  // Handle special case for hanoiTower
+  if (algorithmKey === 'hanoiTower') {
+    worksTitleElement.textContent = '규칙:';
+    howItWorksListElement.innerHTML = '';
+    algorithm.rules.forEach(rule => {
+      const li = document.createElement('li');
+      li.textContent = rule;
+      howItWorksListElement.appendChild(li);
+    });
+  } else {
+    worksTitleElement.textContent = '작동 방식:';
+    howItWorksListElement.innerHTML = '';
+    algorithm.howItWorks.forEach(step => {
+      const li = document.createElement('li');
+      li.textContent = step;
+      howItWorksListElement.appendChild(li);
+    });
+  }
+  
+  descriptionElement.classList.remove('hidden');
+}
+
+function hideDescription() {
+  if (!currentAlgorithm) return;
+  currentAlgorithm = null;
+  descriptionElement.classList.add('hidden');
+}
+
 const raycaster = new THREE.Raycaster();
 let mouse = new THREE.Vector2();
 let destinationPoint = new THREE.Vector3();
@@ -352,6 +403,7 @@ function draw() {
           bubbleSortVisualizer.show();
           bubbleSortVisualizer.startBubbleSort();
           spotMesh.material.color.set("seagreen");
+          showDescription('bubbleSort');
           gsap.to(camera.position, {
             duration: 1,
             y: 3,
@@ -363,6 +415,7 @@ function draw() {
         bubbleSortVisualizer.reset?.();
         bubbleSortVisualizer.hide();
         spotMesh.material.color.set("white");
+        hideDescription();
         gsap.to(camera.position, {
           duration: 1,
           y: 5,
@@ -381,6 +434,7 @@ function draw() {
           insertionSortVisualizer.show();
           insertionSortVisualizer.startInsertionSort();
           insertionSpotMesh.material.color.set("crimson");
+          showDescription('insertionSort');
           gsap.to(camera.position, {
             duration: 1,
             y: 3,
@@ -392,6 +446,7 @@ function draw() {
         insertionSortVisualizer.reset?.();
         insertionSortVisualizer.hide();
         insertionSpotMesh.material.color.set("white");
+        hideDescription();
         gsap.to(camera.position, {
           duration: 1,
           y: 5,
@@ -410,6 +465,7 @@ function draw() {
           selectionSortVisualizer.show();
           selectionSortVisualizer.startSelectionSort();
           selectionSpotMesh.material.color.set("magenta");
+          showDescription('selectionSort');
           gsap.to(camera.position, {
             duration: 1,
             y: 3,
@@ -421,6 +477,7 @@ function draw() {
         selectionSortVisualizer.reset?.();
         selectionSortVisualizer.hide();
         selectionSpotMesh.material.color.set("white");
+        hideDescription();
         gsap.to(camera.position, {
           duration: 1,
           y: 5,
@@ -438,6 +495,7 @@ function draw() {
           quickSortVisualizer.show();
           quickSortVisualizer.startQuickSort();
           quickSpotMesh.material.color.set("cyan");
+          showDescription('quickSort');
           gsap.to(camera.position, {
             duration: 1,
             y: 3,
@@ -449,6 +507,7 @@ function draw() {
         quickSortVisualizer.reset?.();
         quickSortVisualizer.hide();
         quickSpotMesh.material.color.set("white");
+        hideDescription();
         gsap.to(camera.position, {
           duration: 1,
           y: 5,
@@ -465,6 +524,7 @@ function draw() {
           heapSortVisualizer.show();
           heapSortVisualizer.startHeapSort();
           heapSpotMesh.material.color.set("chocolate");
+          showDescription('heapSort');
           gsap.to(camera.position, {
             duration: 1,
             y: 3,
@@ -476,6 +536,7 @@ function draw() {
         heapSortVisualizer.reset?.();
         heapSortVisualizer.hide();
         heapSpotMesh.material.color.set("white");
+        hideDescription();
         gsap.to(camera.position, {
           duration: 1,
           y: 5,
@@ -493,6 +554,7 @@ function draw() {
           mergeSortVisualizer.show();
           mergeSortVisualizer.startMergeSort();
           mergeSpotMesh.material.color.set("purple");
+          showDescription('mergeSort');
           gsap.to(camera.position, {
             duration: 1,
             y: 3,
@@ -504,6 +566,7 @@ function draw() {
         mergeSortVisualizer.reset?.();
         mergeSortVisualizer.hide();
         mergeSpotMesh.material.color.set("white");
+        hideDescription();
         gsap.to(camera.position, {
           duration: 1,
           y: 5,
@@ -520,6 +583,7 @@ function draw() {
           hanoiTowerVisualizer.show();
           hanoiTowerVisualizer.startHanoiAnimation();
           hanoiSpotMesh.material.color.set("orange");
+          showDescription('hanoiTower');
           gsap.to(camera.position, {
             duration: 1,
             y: 3,
@@ -529,6 +593,7 @@ function draw() {
         console.log("하노이의 탑 숨기기");
         hanoiTowerVisualizer.hide();
         hanoiSpotMesh.material.color.set("white");
+        hideDescription();
         gsap.to(camera.position, {
           duration: 1,
           y: 5,
@@ -544,6 +609,7 @@ function draw() {
           console.log("Boids 알고리즘 시작");
           boidsVisualizer.show();
           boidsSpotMesh.material.color.set("lightblue");
+          showDescription('boids');
           gsap.to(camera.position, {
             duration: 1,
             y: 3,
@@ -553,6 +619,7 @@ function draw() {
         console.log("Boids 알고리즘 숨기기");
         boidsVisualizer.hide();
         boidsSpotMesh.material.color.set("white");
+        hideDescription();
         gsap.to(camera.position, {
           duration: 1,
           y: 5,
