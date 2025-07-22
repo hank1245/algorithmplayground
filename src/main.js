@@ -220,56 +220,56 @@ const bubbleSortVisualizer = new BubbleSortVisualizer({
   scene,
   x: -8,
   y: -1.3,
-  z: 8,
+  z: 6,
 });
 
 const insertionSortVisualizer = new InsertionSortVisualizer({
   scene,
   x: 0,
   y: -1.3,
-  z: 8,
+  z: 6,
 });
 
 const selectionSortVisualizer = new SelectionSortVisualizer({
   scene,
   x: 8,
   y: -1.3,
-  z: 8,
+  z: 6,
 });
 
 const quickSortVisualizer = new QuickSortVisualizer({
   scene,
   x: -8,
   y: -1.3,
-  z: 0,
+  z: -2,
 });
 
 const heapSortVisualizer = new HeapSortVisualizer({
   scene,
   x: 8,
   y: -1.3,
-  z: 0,
+  z: -2,
 });
 
 const mergeSortVisualizer = new MergeSortVisualizer({
   scene,
   x: -8,
   y: -1.3,
-  z: -8,
+  z: -10,
 });
 
 const hanoiTowerVisualizer = new HanoiTowerVisualizer({
   scene,
   x: 0,
   y: -1.3,
-  z: -8,
+  z: -10,
 });
 
 const boidsVisualizer = new BoidsVisualizer({
   scene,
   x: 8,
   y: -1.3,
-  z: -8,
+  z: -10,
 });
 
 const player = new Player({
