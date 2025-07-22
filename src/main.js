@@ -107,7 +107,8 @@ const spotMesh = new THREE.Mesh(
     opacity: 0.5,
   })
 );
-spotMesh.position.set(5, 0.005, 5);
+// 3x3 grid layout spots with center (0,0) empty
+spotMesh.position.set(-8, 0.005, 8);
 spotMesh.rotation.x = -Math.PI / 2;
 spotMesh.receiveShadow = true;
 scene.add(spotMesh);
@@ -120,7 +121,7 @@ const insertionSpotMesh = new THREE.Mesh(
     opacity: 0.5,
   })
 );
-insertionSpotMesh.position.set(-5, 0.005, 5);
+insertionSpotMesh.position.set(0, 0.005, 8);
 insertionSpotMesh.rotation.x = -Math.PI / 2;
 insertionSpotMesh.receiveShadow = true;
 scene.add(insertionSpotMesh);
@@ -133,7 +134,7 @@ const selectionSpotMesh = new THREE.Mesh(
     opacity: 0.5,
   })
 );
-selectionSpotMesh.position.set(5, 0.005, -5);
+selectionSpotMesh.position.set(8, 0.005, 8);
 selectionSpotMesh.rotation.x = -Math.PI / 2;
 selectionSpotMesh.receiveShadow = true;
 scene.add(selectionSpotMesh);
@@ -146,7 +147,7 @@ const quickSpotMesh = new THREE.Mesh(
     opacity: 0.5,
   })
 );
-quickSpotMesh.position.set(-5, 0.005, -5);
+quickSpotMesh.position.set(-8, 0.005, 0);
 quickSpotMesh.rotation.x = -Math.PI / 2;
 quickSpotMesh.receiveShadow = true;
 scene.add(quickSpotMesh);
@@ -159,7 +160,7 @@ const heapSpotMesh = new THREE.Mesh(
     opacity: 0.5,
   })
 );
-heapSpotMesh.position.set(0, 0.005, -5);
+heapSpotMesh.position.set(8, 0.005, 0);
 heapSpotMesh.rotation.x = -Math.PI / 2;
 heapSpotMesh.receiveShadow = true;
 scene.add(heapSpotMesh);
@@ -172,7 +173,7 @@ const mergeSpotMesh = new THREE.Mesh(
     opacity: 0.5,
   })
 );
-mergeSpotMesh.position.set(0, 0.005, 5);
+mergeSpotMesh.position.set(-8, 0.005, -8);
 mergeSpotMesh.rotation.x = -Math.PI / 2;
 mergeSpotMesh.receiveShadow = true;
 scene.add(mergeSpotMesh);
@@ -185,7 +186,7 @@ const hanoiSpotMesh = new THREE.Mesh(
     opacity: 0.5,
   })
 );
-hanoiSpotMesh.position.set(10, 0.005, 0);
+hanoiSpotMesh.position.set(0, 0.005, -8);
 hanoiSpotMesh.rotation.x = -Math.PI / 2;
 hanoiSpotMesh.receiveShadow = true;
 scene.add(hanoiSpotMesh);
@@ -198,67 +199,68 @@ const boidsSpotMesh = new THREE.Mesh(
     opacity: 0.5,
   })
 );
-boidsSpotMesh.position.set(-10, 0.005, 0);
+boidsSpotMesh.position.set(8, 0.005, -8);
 boidsSpotMesh.rotation.x = -Math.PI / 2;
 boidsSpotMesh.receiveShadow = true;
 scene.add(boidsSpotMesh);
 
 const gltfLoader = new GLTFLoader();
 
+// 3x3 grid layout with center (0,0) empty - spacing of 8 units
 const bubbleSortVisualizer = new BubbleSortVisualizer({
   scene,
-  x: 5,
+  x: -8,
   y: -1.3,
-  z: 2,
+  z: 8,
 });
 
 const insertionSortVisualizer = new InsertionSortVisualizer({
   scene,
-  x: -5,
+  x: 0,
   y: -1.3,
-  z: 2,
+  z: 8,
 });
 
 const selectionSortVisualizer = new SelectionSortVisualizer({
   scene,
-  x: 5,
+  x: 8,
   y: -1.3,
-  z: -8,
+  z: 8,
 });
 
 const quickSortVisualizer = new QuickSortVisualizer({
   scene,
-  x: -5,
+  x: -8,
   y: -1.3,
-  z: -8,
+  z: 0,
 });
 
 const heapSortVisualizer = new HeapSortVisualizer({
   scene,
-  x: 0,
+  x: 8,
   y: -1.3,
-  z: -3,
+  z: 0,
 });
 
 const mergeSortVisualizer = new MergeSortVisualizer({
   scene,
-  x: 0,
+  x: -8,
   y: -1.3,
-  z: 2,
+  z: -8,
 });
 
 const hanoiTowerVisualizer = new HanoiTowerVisualizer({
   scene,
-  x: 10,
+  x: 0,
   y: -1.3,
-  z: 0,
+  z: -8,
 });
 
 const boidsVisualizer = new BoidsVisualizer({
   scene,
-  x: -10,
+  x: 8,
   y: -1.3,
-  z: 0,
+  z: -8,
 });
 
 const player = new Player({
