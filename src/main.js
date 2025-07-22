@@ -27,6 +27,7 @@ const heapSortTexture = textureLoader.load("/images/heapSort.png");
 const mergeSortTexture = textureLoader.load("/images/mergeSort.png");
 const hanoiTowerTexture = textureLoader.load("/images/hanoiTower.png");
 const boidsTexture = textureLoader.load("/images/boids.png");
+const welcomeTexture = textureLoader.load("/images/welcome.png");
 
 // Renderer
 const canvas = document.querySelector("#three-canvas");
@@ -212,6 +213,19 @@ boidsSpotMesh.position.set(8, 0.005, -8);
 boidsSpotMesh.rotation.x = -Math.PI / 2;
 boidsSpotMesh.receiveShadow = true;
 scene.add(boidsSpotMesh);
+
+const welcomeSpotMesh = new THREE.Mesh(
+  new THREE.PlaneGeometry(4, 4),
+  new THREE.MeshStandardMaterial({
+    map: welcomeTexture,
+    transparent: true,
+    opacity: 0.8,
+  })
+);
+welcomeSpotMesh.position.set(0, 0.005, 0);
+welcomeSpotMesh.rotation.x = -Math.PI / 2;
+welcomeSpotMesh.receiveShadow = true;
+scene.add(welcomeSpotMesh);
 
 const gltfLoader = new GLTFLoader();
 
