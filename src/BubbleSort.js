@@ -10,9 +10,11 @@ export class BubbleSortVisualizer {
 
 		this.visible = false;
 		this.isAnimating = false;
+		this.shouldStop = false;
 
 		// 버블 정렬에 사용할 배열 데이터
-		this.array = [8, 3, 7, 1, 9, 2, 6, 4, 5];
+		this.originalArray = [8, 3, 7, 1, 9, 2, 6, 4, 5];
+		this.array = [...this.originalArray];
 		this.bars = [];
 		this.group = new THREE.Group();
 
@@ -45,21 +47,28 @@ export class BubbleSortVisualizer {
 	async startBubbleSort() {
 		if (this.isAnimating) return;
 		this.isAnimating = true;
+		this.shouldStop = false;
 
 		const arr = [...this.array];
 		const n = arr.length;
 
 		for (let i = 0; i < n - 1; i++) {
+			if (this.shouldStop) break;
+			
 			for (let j = 0; j < n - i - 1; j++) {
+				if (this.shouldStop) break;
+				
 				// 비교할 두 막대 하이라이트
 				this.bars[j].material.color.set(0xff6b6b);
 				this.bars[j + 1].material.color.set(0xff6b6b);
 
 				await this.delay(800);
+				if (this.shouldStop) break;
 
 				if (arr[j] > arr[j + 1]) {
 					// 교환 애니메이션
 					await this.swapBars(j, j + 1);
+					if (this.shouldStop) break;
 					
 					// 배열에서도 교환
 					[arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
@@ -70,11 +79,15 @@ export class BubbleSortVisualizer {
 				this.bars[j + 1].material.color.set(0x4a90e2);
 			}
 			// 정렬된 요소를 녹색으로 표시
-			this.bars[n - 1 - i].material.color.set(0x51cf66);
+			if (!this.shouldStop) {
+				this.bars[n - 1 - i].material.color.set(0x51cf66);
+			}
 		}
 
 		// 첫 번째 요소도 녹색으로
-		this.bars[0].material.color.set(0x51cf66);
+		if (!this.shouldStop) {
+			this.bars[0].material.color.set(0x51cf66);
+		}
 		this.isAnimating = false;
 	}
 
@@ -124,5 +137,28 @@ export class BubbleSortVisualizer {
 			duration: 0.5,
 			y: this.y - 1.5,
 		});
+	}
+
+	stop() {
+		this.shouldStop = true;
+		this.isAnimating = false;
+		gsap.killTweensOf(this.group.position);
+		this.bars.forEach(bar => {
+			gsap.killTweensOf(bar.position);
+		});
+	}
+
+	reset() {
+		this.stop();
+		this.array = [...this.originalArray];
+		
+		// 모든 바 제거
+		this.bars.forEach(bar => {
+			this.group.remove(bar);
+		});
+		this.bars = [];
+		
+		// 새로 생성
+		this.createBars();
 	}
 }

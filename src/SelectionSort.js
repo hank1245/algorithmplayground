@@ -10,9 +10,11 @@ export class SelectionSortVisualizer {
 
 		this.visible = false;
 		this.isAnimating = false;
+		this.shouldStop = false;
 
 		// 선택 정렬에 사용할 배열 데이터
-		this.array = [4, 7, 2, 9, 1, 5, 8, 3, 6];
+		this.originalArray = [4, 7, 2, 9, 1, 5, 8, 3, 6];
+		this.array = [...this.originalArray];
 		this.bars = [];
 		this.group = new THREE.Group();
 
@@ -45,11 +47,14 @@ export class SelectionSortVisualizer {
 	async startSelectionSort() {
 		if (this.isAnimating) return;
 		this.isAnimating = true;
+		this.shouldStop = false;
 
 		const arr = [...this.array];
 		const n = arr.length;
 
 		for (let i = 0; i < n - 1; i++) {
+			if (this.shouldStop) break;
+			
 			let minIndex = i;
 			
 			// 현재 위치 하이라이트 (시작점)
@@ -57,9 +62,11 @@ export class SelectionSortVisualizer {
 			
 			// 최소값을 찾기 위해 나머지 요소들 확인
 			for (let j = i + 1; j < n; j++) {
+				if (this.shouldStop) break;
 				// 비교할 요소 하이라이트
 				this.bars[j].material.color.set(0xf39c12);
 				await this.delay(400);
+				if (this.shouldStop) break;
 				
 				if (arr[j] < arr[minIndex]) {
 					// 이전 최소값 색상 원래대로
@@ -75,31 +82,40 @@ export class SelectionSortVisualizer {
 				}
 				
 				await this.delay(200);
+				if (this.shouldStop) break;
 			}
 
+			if (this.shouldStop) break;
+			
 			// 최소값을 찾았다면 교환
-			if (minIndex !== i) {
+			if (minIndex !== i && !this.shouldStop) {
 				// 교환할 두 막대를 위로 들어올림
 				await Promise.all([
 					this.liftBar(this.bars[i]),
 					this.liftBar(this.bars[minIndex])
 				]);
+				if (this.shouldStop) break;
 				
 				// 교환 애니메이션
 				await this.swapBars(i, minIndex);
+				if (this.shouldStop) break;
 				
 				// 배열에서도 교환
 				[arr[i], arr[minIndex]] = [arr[minIndex], arr[i]];
 			}
 
 			// 정렬된 요소를 녹색으로 표시
-			this.bars[i].material.color.set(0x27ae60);
+			if (!this.shouldStop) {
+				this.bars[i].material.color.set(0x27ae60);
+			}
 			
 			await this.delay(600);
 		}
 
 		// 마지막 요소도 녹색으로
-		this.bars[n - 1].material.color.set(0x27ae60);
+		if (!this.shouldStop) {
+			this.bars[n - 1].material.color.set(0x27ae60);
+		}
 		this.isAnimating = false;
 	}
 
@@ -164,5 +180,28 @@ export class SelectionSortVisualizer {
 			duration: 0.5,
 			y: this.y - 1.5,
 		});
+	}
+
+	stop() {
+		this.shouldStop = true;
+		this.isAnimating = false;
+		gsap.killTweensOf(this.group.position);
+		this.bars.forEach(bar => {
+			gsap.killTweensOf(bar.position);
+		});
+	}
+
+	reset() {
+		this.stop();
+		this.array = [...this.originalArray];
+		
+		// 모든 바 제거
+		this.bars.forEach(bar => {
+			this.group.remove(bar);
+		});
+		this.bars = [];
+		
+		// 새로 생성
+		this.createBars();
 	}
 }

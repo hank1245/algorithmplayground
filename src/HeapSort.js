@@ -10,9 +10,11 @@ export class HeapSortVisualizer {
 
 		this.visible = false;
 		this.isAnimating = false;
+		this.shouldStop = false;
 
 		// 힙 정렬에 사용할 배열 데이터
-		this.array = [3, 7, 1, 9, 4, 8, 2, 6, 5];
+		this.originalArray = [3, 7, 1, 9, 4, 8, 2, 6, 5];
+		this.array = [...this.originalArray];
 		this.bars = [];
 		this.group = new THREE.Group();
 
@@ -45,43 +47,54 @@ export class HeapSortVisualizer {
 	async startHeapSort() {
 		if (this.isAnimating) return;
 		this.isAnimating = true;
+		this.shouldStop = false;
 
 		// 배열 초기화
-		this.array = [3, 7, 1, 9, 4, 8, 2, 6, 5];
+		this.array = [...this.originalArray];
 		this.resetColors();
 
 		const n = this.array.length;
 
 		// 최대 힙 구축 (Build Max Heap)
 		for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
+			if (this.shouldStop) break;
 			await this.heapify(n, i);
 		}
 
 		// 정렬 과정
 		for (let i = n - 1; i > 0; i--) {
+			if (this.shouldStop) break;
 			// 루트(최대값)와 마지막 요소 교환
 			this.bars[0].material.color.set(0xf39c12); // 루트를 노란색으로
 			this.bars[i].material.color.set(0xf39c12); // 교환할 요소를 노란색으로
 			await this.delay(600);
+			if (this.shouldStop) break;
 
 			// 막대를 들어올려서 교환
 			await Promise.all([
 				this.liftBar(this.bars[0]),
 				this.liftBar(this.bars[i])
 			]);
+			if (this.shouldStop) break;
 
 			await this.swapBars(0, i);
+			if (this.shouldStop) break;
 			[this.array[0], this.array[i]] = [this.array[i], this.array[0]];
 
 			// 정렬된 요소를 녹색으로 표시
-			this.bars[i].material.color.set(0x27ae60);
+			if (!this.shouldStop) {
+				this.bars[i].material.color.set(0x27ae60);
+			}
 
 			// 힙 크기를 줄이고 루트에서 다시 힙화
 			await this.heapify(i, 0);
+			if (this.shouldStop) break;
 		}
 
 		// 첫 번째 요소도 녹색으로 (정렬 완료)
-		this.bars[0].material.color.set(0x27ae60);
+		if (!this.shouldStop) {
+			this.bars[0].material.color.set(0x27ae60);
+		}
 
 		this.isAnimating = false;
 	}
@@ -94,11 +107,13 @@ export class HeapSortVisualizer {
 		// 현재 노드를 파란색으로 표시 (힙화 중인 노드)
 		this.bars[rootIndex].material.color.set(0x3498db);
 		await this.delay(400);
+		if (this.shouldStop) return;
 
 		// 왼쪽 자식과 비교
 		if (leftChild < heapSize) {
 			this.bars[leftChild].material.color.set(0xe74c3c); // 비교 중인 자식을 빨간색으로
 			await this.delay(300);
+			if (this.shouldStop) return;
 			
 			if (this.array[leftChild] > this.array[largest]) {
 				largest = leftChild;
@@ -109,6 +124,7 @@ export class HeapSortVisualizer {
 		if (rightChild < heapSize) {
 			this.bars[rightChild].material.color.set(0xe74c3c); // 비교 중인 자식을 빨간색으로
 			await this.delay(300);
+			if (this.shouldStop) return;
 			
 			if (this.array[rightChild] > this.array[largest]) {
 				largest = rightChild;
@@ -116,29 +132,35 @@ export class HeapSortVisualizer {
 		}
 
 		// 교환이 필요한 경우
-		if (largest !== rootIndex) {
+		if (largest !== rootIndex && !this.shouldStop) {
 			// 교환할 요소들을 보라색으로 표시
 			this.bars[rootIndex].material.color.set(0x9b59b6);
 			this.bars[largest].material.color.set(0x9b59b6);
 			await this.delay(400);
+			if (this.shouldStop) return;
 
 			// 막대를 들어올려서 교환
 			await Promise.all([
 				this.liftBar(this.bars[rootIndex]),
 				this.liftBar(this.bars[largest])
 			]);
+			if (this.shouldStop) return;
 
 			await this.swapBars(rootIndex, largest);
+			if (this.shouldStop) return;
 			[this.array[rootIndex], this.array[largest]] = [this.array[largest], this.array[rootIndex]];
 
 			// 재귀적으로 힙화 (영향받은 서브트리)
 			await this.heapify(heapSize, largest);
+			if (this.shouldStop) return;
 		}
 
 		// 색상 원래대로 복구 (정렬된 부분 제외)
-		for (let i = 0; i < heapSize; i++) {
-			if (this.bars[i].material.color.getHex() !== 0x27ae60) {
-				this.bars[i].material.color.set(0xd35400);
+		if (!this.shouldStop) {
+			for (let i = 0; i < heapSize; i++) {
+				if (this.bars[i].material.color.getHex() !== 0x27ae60) {
+					this.bars[i].material.color.set(0xd35400);
+				}
 			}
 		}
 	}
@@ -210,5 +232,28 @@ export class HeapSortVisualizer {
 			duration: 0.5,
 			y: this.y - 1.5,
 		});
+	}
+
+	stop() {
+		this.shouldStop = true;
+		this.isAnimating = false;
+		gsap.killTweensOf(this.group.position);
+		this.bars.forEach(bar => {
+			gsap.killTweensOf(bar.position);
+		});
+	}
+
+	reset() {
+		this.stop();
+		this.array = [...this.originalArray];
+		
+		// 모든 바 제거
+		this.bars.forEach(bar => {
+			this.group.remove(bar);
+		});
+		this.bars = [];
+		
+		// 새로 생성
+		this.createBars();
 	}
 }

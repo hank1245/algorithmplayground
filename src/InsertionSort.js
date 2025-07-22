@@ -10,9 +10,11 @@ export class InsertionSortVisualizer {
 
 		this.visible = false;
 		this.isAnimating = false;
+		this.shouldStop = false;
 
 		// 삽입 정렬에 사용할 배열 데이터
-		this.array = [6, 2, 8, 4, 1, 9, 3, 7, 5];
+		this.originalArray = [6, 2, 8, 4, 1, 9, 3, 7, 5];
+		this.array = [...this.originalArray];
 		this.bars = [];
 		this.group = new THREE.Group();
 
@@ -45,11 +47,14 @@ export class InsertionSortVisualizer {
 	async startInsertionSort() {
 		if (this.isAnimating) return;
 		this.isAnimating = true;
+		this.shouldStop = false;
 
 		const arr = [...this.array];
 		const n = arr.length;
 
 		for (let i = 1; i < n; i++) {
+			if (this.shouldStop) break;
+			
 			const key = arr[i];
 			const keyBar = this.bars[i];
 			let j = i - 1;
@@ -57,20 +62,24 @@ export class InsertionSortVisualizer {
 			// 현재 삽입할 요소 하이라이트
 			keyBar.material.color.set(0xf39c12);
 			await this.delay(800);
+			if (this.shouldStop) break;
 
 			// keyBar를 위로 올려서 다른 막대와 겹치지 않게 함
 			await this.liftBar(keyBar);
+			if (this.shouldStop) break;
 
 			// 정렬된 부분과 비교하면서 위치 찾기
 			let insertPos = i;
-			while (j >= 0 && arr[j] > key) {
+			while (j >= 0 && arr[j] > key && !this.shouldStop) {
 				// 비교할 요소 하이라이트
 				this.bars[j].material.color.set(0xff6b6b);
 				await this.delay(600);
+				if (this.shouldStop) break;
 
 				// 요소를 오른쪽으로 이동
 				arr[j + 1] = arr[j];
 				await this.shiftBarRight(j);
+				if (this.shouldStop) break;
 
 				// 색상 원래대로
 				this.bars[j].material.color.set(0xe74c3c);
@@ -78,16 +87,21 @@ export class InsertionSortVisualizer {
 				j--;
 			}
 
+			if (this.shouldStop) break;
+			
 			// key를 올바른 위치에 삽입
 			arr[insertPos] = key;
 			
 			// keyBar를 올바른 위치에 배치
 			await this.placeBar(keyBar, insertPos);
+			if (this.shouldStop) break;
 			this.updateBarsArray(keyBar, i, insertPos);
 			
 			// 정렬된 부분을 녹색으로 표시
-			for (let k = 0; k <= i; k++) {
-				this.bars[k].material.color.set(0x27ae60);
+			if (!this.shouldStop) {
+				for (let k = 0; k <= i; k++) {
+					this.bars[k].material.color.set(0x27ae60);
+				}
 			}
 			
 			await this.delay(400);
@@ -161,5 +175,28 @@ export class InsertionSortVisualizer {
 			duration: 0.5,
 			y: this.y - 1.5,
 		});
+	}
+
+	stop() {
+		this.shouldStop = true;
+		this.isAnimating = false;
+		gsap.killTweensOf(this.group.position);
+		this.bars.forEach(bar => {
+			gsap.killTweensOf(bar.position);
+		});
+	}
+
+	reset() {
+		this.stop();
+		this.array = [...this.originalArray];
+		
+		// 모든 바 제거
+		this.bars.forEach(bar => {
+			this.group.remove(bar);
+		});
+		this.bars = [];
+		
+		// 새로 생성
+		this.createBars();
 	}
 }

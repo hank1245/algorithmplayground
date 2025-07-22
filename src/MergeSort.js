@@ -10,9 +10,11 @@ export class MergeSortVisualizer {
 
     this.visible = false;
     this.isAnimating = false;
+    this.shouldStop = false;
 
     // 병합 정렬에 사용할 배열 데이터
-    this.array = [5, 2, 8, 1, 9, 3, 7, 4, 6];
+    this.originalArray = [5, 2, 8, 1, 9, 3, 7, 4, 6];
+    this.array = [...this.originalArray];
     this.bars = [];
     this.group = new THREE.Group();
 
@@ -45,33 +47,39 @@ export class MergeSortVisualizer {
   async startMergeSort() {
     if (this.isAnimating) return;
     this.isAnimating = true;
+    this.shouldStop = false;
 
     // 배열 초기화
-    this.array = [5, 2, 8, 1, 9, 3, 7, 4, 6];
+    this.array = [...this.originalArray];
     this.resetColors();
 
     await this.mergeSort(0, this.array.length - 1);
 
     // 모든 막대를 녹색으로 표시 (정렬 완료)
-    for (let i = 0; i < this.bars.length; i++) {
-      this.bars[i].material.color.set(0x27ae60);
+    if (!this.shouldStop) {
+      for (let i = 0; i < this.bars.length; i++) {
+        this.bars[i].material.color.set(0x27ae60);
+      }
     }
 
     this.isAnimating = false;
   }
 
   async mergeSort(left, right) {
-    if (left < right) {
+    if (left < right && !this.shouldStop) {
       const middle = Math.floor((left + right) / 2);
 
       // 분할 범위 표시
       this.highlightRange(left, middle, 0x3498db); // 왼쪽 부분을 파란색으로
       this.highlightRange(middle + 1, right, 0xe67e22); // 오른쪽 부분을 주황색으로
       await this.delay(800);
+      if (this.shouldStop) return;
 
       // 재귀적으로 분할
       await this.mergeSort(left, middle);
+      if (this.shouldStop) return;
       await this.mergeSort(middle + 1, right);
+      if (this.shouldStop) return;
 
       // 병합
       await this.merge(left, middle, right);
@@ -83,6 +91,7 @@ export class MergeSortVisualizer {
     this.highlightRange(left, middle, 0x9b59b6); // 왼쪽을 보라색으로
     this.highlightRange(middle + 1, right, 0xf39c12); // 오른쪽을 노란색으로
     await this.delay(600);
+    if (this.shouldStop) return;
 
     // 원본 데이터 백업
     const originalArray = [...this.array];
@@ -106,9 +115,11 @@ export class MergeSortVisualizer {
 
     // 모든 막대를 높이 들어올림 (겹침 방지)
     for (let i = left; i <= right; i++) {
+      if (this.shouldStop) return;
       await this.liftBar(this.bars[i]);
     }
     await this.delay(300);
+    if (this.shouldStop) return;
 
     let i = 0,
       j = 0,
@@ -116,11 +127,12 @@ export class MergeSortVisualizer {
     const mergedBars = [];
 
     // 병합 과정
-    while (i < leftArray.length && j < rightArray.length) {
+    while (i < leftArray.length && j < rightArray.length && !this.shouldStop) {
       // 비교할 요소들을 빨간색으로 강조
       leftBars[i].material.color.set(0xe74c3c);
       rightBars[j].material.color.set(0xe74c3c);
       await this.delay(400);
+      if (this.shouldStop) return;
 
       let selectedBar, selectedValue;
 
@@ -140,6 +152,7 @@ export class MergeSortVisualizer {
 
       // 선택된 막대를 최종 위치로 배치
       await this.placeBarAtPosition(selectedBar, k);
+      if (this.shouldStop) return;
       selectedBar.material.color.set(0x2ecc71);
 
       k++;
@@ -147,20 +160,22 @@ export class MergeSortVisualizer {
     }
 
     // 남은 요소들 처리
-    while (i < leftArray.length) {
+    while (i < leftArray.length && !this.shouldStop) {
       this.array[k] = leftArray[i];
       mergedBars.push(leftBars[i]);
       await this.placeBarAtPosition(leftBars[i], k);
+      if (this.shouldStop) return;
       leftBars[i].material.color.set(0x2ecc71);
       i++;
       k++;
       await this.delay(200);
     }
 
-    while (j < rightArray.length) {
+    while (j < rightArray.length && !this.shouldStop) {
       this.array[k] = rightArray[j];
       mergedBars.push(rightBars[j]);
       await this.placeBarAtPosition(rightBars[j], k);
+      if (this.shouldStop) return;
       rightBars[j].material.color.set(0x2ecc71);
       j++;
       k++;
@@ -168,13 +183,17 @@ export class MergeSortVisualizer {
     }
 
     // bars 배열 업데이트
-    for (let i = 0; i < mergedBars.length; i++) {
-      this.bars[left + i] = mergedBars[i];
+    if (!this.shouldStop) {
+      for (let i = 0; i < mergedBars.length; i++) {
+        this.bars[left + i] = mergedBars[i];
+      }
     }
 
     // 병합된 범위를 잠시 강조
-    this.highlightRange(left, right, 0x1abc9c);
-    await this.delay(400);
+    if (!this.shouldStop) {
+      this.highlightRange(left, right, 0x1abc9c);
+      await this.delay(400);
+    }
   }
 
   highlightRange(start, end, color) {
@@ -235,5 +254,28 @@ export class MergeSortVisualizer {
       duration: 0.5,
       y: this.y - 1.5,
     });
+  }
+
+  stop() {
+    this.shouldStop = true;
+    this.isAnimating = false;
+    gsap.killTweensOf(this.group.position);
+    this.bars.forEach(bar => {
+      gsap.killTweensOf(bar.position);
+    });
+  }
+
+  reset() {
+    this.stop();
+    this.array = [...this.originalArray];
+    
+    // 모든 바 제거
+    this.bars.forEach(bar => {
+      this.group.remove(bar);
+    });
+    this.bars = [];
+    
+    // 새로 생성
+    this.createBars();
   }
 }

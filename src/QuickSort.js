@@ -10,9 +10,11 @@ export class QuickSortVisualizer {
 
 		this.visible = false;
 		this.isAnimating = false;
+		this.shouldStop = false;
 
 		// 퀵 정렬에 사용할 배열 데이터
-		this.array = [7, 2, 9, 1, 8, 3, 6, 4, 5];
+		this.originalArray = [7, 2, 9, 1, 8, 3, 6, 4, 5];
+		this.array = [...this.originalArray];
 		this.bars = [];
 		this.group = new THREE.Group();
 
@@ -45,36 +47,45 @@ export class QuickSortVisualizer {
 	async startQuickSort() {
 		if (this.isAnimating) return;
 		this.isAnimating = true;
+		this.shouldStop = false;
 
 		// 배열 초기화
-		this.array = [7, 2, 9, 1, 8, 3, 6, 4, 5];
+		this.array = [...this.originalArray];
 		this.resetColors();
 
 		await this.quickSort(0, this.array.length - 1);
 
 		// 모든 막대를 녹색으로 표시
-		for (let i = 0; i < this.bars.length; i++) {
-			this.bars[i].material.color.set(0x27ae60);
+		if (!this.shouldStop) {
+			for (let i = 0; i < this.bars.length; i++) {
+				this.bars[i].material.color.set(0x27ae60);
+			}
 		}
 
 		this.isAnimating = false;
 	}
 
 	async quickSort(low, high) {
-		if (low < high) {
+		if (low < high && !this.shouldStop) {
 			// 파티션 범위 표시
 			this.highlightRange(low, high, 0x3498db);
 			await this.delay(600);
+			if (this.shouldStop) return;
 
 			// 피벗을 노란색으로 강조
 			this.bars[high].material.color.set(0xf1c40f);
 			await this.delay(400);
+			if (this.shouldStop) return;
 
 			const pivotIndex = await this.partition(low, high);
+			if (this.shouldStop) return;
 
 			// 피벗을 올바른 위치에 배치했으므로 녹색으로 표시
-			this.bars[pivotIndex].material.color.set(0x27ae60);
+			if (!this.shouldStop) {
+				this.bars[pivotIndex].material.color.set(0x27ae60);
+			}
 			await this.delay(400);
+			if (this.shouldStop) return;
 
 			// 범위 색상 원래대로
 			this.resetRangeColors(low, high, pivotIndex);
@@ -82,7 +93,7 @@ export class QuickSortVisualizer {
 			// 재귀적으로 정렬
 			await this.quickSort(low, pivotIndex - 1);
 			await this.quickSort(pivotIndex + 1, high);
-		} else if (low === high) {
+		} else if (low === high && !this.shouldStop) {
 			// 단일 요소는 이미 정렬된 것으로 표시
 			this.bars[low].material.color.set(0x27ae60);
 		}
@@ -93,9 +104,12 @@ export class QuickSortVisualizer {
 		let i = low - 1;
 
 		for (let j = low; j < high; j++) {
+			if (this.shouldStop) return i + 1;
+			
 			// 현재 비교 중인 요소 하이라이트
 			this.bars[j].material.color.set(0xe74c3c);
 			await this.delay(400);
+			if (this.shouldStop) return i + 1;
 
 			if (this.array[j] < pivot) {
 				i++;
@@ -106,14 +120,17 @@ export class QuickSortVisualizer {
 					this.bars[i].material.color.set(0x9b59b6);
 					this.bars[j].material.color.set(0x9b59b6);
 					await this.delay(200);
+					if (this.shouldStop) return i + 1;
 
 					// 막대를 들어올려서 교환
 					await Promise.all([
 						this.liftBar(this.bars[i]),
 						this.liftBar(this.bars[j])
 					]);
+					if (this.shouldStop) return i + 1;
 
 					await this.swapBars(i, j);
+					if (this.shouldStop) return i + 1;
 					
 					// 배열에서도 교환
 					[this.array[i], this.array[j]] = [this.array[j], this.array[i]];
@@ -129,17 +146,20 @@ export class QuickSortVisualizer {
 
 		// 피벗과 i+1 위치 교환
 		i++;
-		if (i !== high) {
+		if (i !== high && !this.shouldStop) {
 			this.bars[i].material.color.set(0x9b59b6);
 			this.bars[high].material.color.set(0x9b59b6);
 			await this.delay(200);
+			if (this.shouldStop) return i;
 
 			await Promise.all([
 				this.liftBar(this.bars[i]),
 				this.liftBar(this.bars[high])
 			]);
+			if (this.shouldStop) return i;
 
 			await this.swapBars(i, high);
+			if (this.shouldStop) return i;
 			
 			// 배열에서도 교환
 			[this.array[i], this.array[high]] = [this.array[high], this.array[i]];
@@ -231,5 +251,28 @@ export class QuickSortVisualizer {
 			duration: 0.5,
 			y: this.y - 1.5,
 		});
+	}
+
+	stop() {
+		this.shouldStop = true;
+		this.isAnimating = false;
+		gsap.killTweensOf(this.group.position);
+		this.bars.forEach(bar => {
+			gsap.killTweensOf(bar.position);
+		});
+	}
+
+	reset() {
+		this.stop();
+		this.array = [...this.originalArray];
+		
+		// 모든 바 제거
+		this.bars.forEach(bar => {
+			this.group.remove(bar);
+		});
+		this.bars = [];
+		
+		// 새로 생성
+		this.createBars();
 	}
 }

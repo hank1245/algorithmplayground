@@ -331,6 +331,7 @@ function draw() {
       ) {
         if (!bubbleSortVisualizer.visible) {
           console.log("버블 정렬 시작");
+          bubbleSortVisualizer.reset?.();
           bubbleSortVisualizer.show();
           bubbleSortVisualizer.startBubbleSort();
           spotMesh.material.color.set("seagreen");
@@ -341,6 +342,8 @@ function draw() {
         }
       } else if (bubbleSortVisualizer.visible) {
         console.log("버블 정렬 숨기기");
+        bubbleSortVisualizer.stop?.();
+        bubbleSortVisualizer.reset?.();
         bubbleSortVisualizer.hide();
         spotMesh.material.color.set("white");
         gsap.to(camera.position, {
@@ -357,6 +360,7 @@ function draw() {
       ) {
         if (!insertionSortVisualizer.visible) {
           console.log("삽입 정렬 시작");
+          insertionSortVisualizer.reset?.();
           insertionSortVisualizer.show();
           insertionSortVisualizer.startInsertionSort();
           insertionSpotMesh.material.color.set("crimson");
@@ -367,6 +371,8 @@ function draw() {
         }
       } else if (insertionSortVisualizer.visible) {
         console.log("삽입 정렬 숨기기");
+        insertionSortVisualizer.stop?.();
+        insertionSortVisualizer.reset?.();
         insertionSortVisualizer.hide();
         insertionSpotMesh.material.color.set("white");
         gsap.to(camera.position, {
@@ -383,6 +389,7 @@ function draw() {
       ) {
         if (!selectionSortVisualizer.visible) {
           console.log("선택 정렬 시작");
+          selectionSortVisualizer.reset?.();
           selectionSortVisualizer.show();
           selectionSortVisualizer.startSelectionSort();
           selectionSpotMesh.material.color.set("magenta");
@@ -393,6 +400,8 @@ function draw() {
         }
       } else if (selectionSortVisualizer.visible) {
         console.log("선택 정렬 숨기기");
+        selectionSortVisualizer.stop?.();
+        selectionSortVisualizer.reset?.();
         selectionSortVisualizer.hide();
         selectionSpotMesh.material.color.set("white");
         gsap.to(camera.position, {
@@ -408,6 +417,7 @@ function draw() {
       ) {
         if (!quickSortVisualizer.visible) {
           console.log("퀵 정렬 시작");
+          quickSortVisualizer.reset?.();
           quickSortVisualizer.show();
           quickSortVisualizer.startQuickSort();
           quickSpotMesh.material.color.set("cyan");
@@ -418,6 +428,8 @@ function draw() {
         }
       } else if (quickSortVisualizer.visible) {
         console.log("퀵 정렬 숨기기");
+        quickSortVisualizer.stop?.();
+        quickSortVisualizer.reset?.();
         quickSortVisualizer.hide();
         quickSpotMesh.material.color.set("white");
         gsap.to(camera.position, {
@@ -432,6 +444,7 @@ function draw() {
       ) {
         if (!heapSortVisualizer.visible) {
           console.log("힙 정렬 시작");
+          heapSortVisualizer.reset?.();
           heapSortVisualizer.show();
           heapSortVisualizer.startHeapSort();
           heapSpotMesh.material.color.set("chocolate");
@@ -442,6 +455,8 @@ function draw() {
         }
       } else if (heapSortVisualizer.visible) {
         console.log("힙 정렬 숨기기");
+        heapSortVisualizer.stop?.();
+        heapSortVisualizer.reset?.();
         heapSortVisualizer.hide();
         heapSpotMesh.material.color.set("white");
         gsap.to(camera.position, {
@@ -457,6 +472,7 @@ function draw() {
       ) {
         if (!mergeSortVisualizer.visible) {
           console.log("병합 정렬 시작");
+          mergeSortVisualizer.reset?.();
           mergeSortVisualizer.show();
           mergeSortVisualizer.startMergeSort();
           mergeSpotMesh.material.color.set("purple");
@@ -466,7 +482,9 @@ function draw() {
           });
         }
       } else if (mergeSortVisualizer.visible) {
-        console.log("병합 정렬 숨기기");
+        console.log("병합 정렬 숨깰기");
+        mergeSortVisualizer.stop?.();
+        mergeSortVisualizer.reset?.();
         mergeSortVisualizer.hide();
         mergeSpotMesh.material.color.set("white");
         gsap.to(camera.position, {
