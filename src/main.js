@@ -7,6 +7,7 @@ import { SelectionSortVisualizer } from "./SelectionSort";
 import { QuickSortVisualizer } from "./QuickSort";
 import { HeapSortVisualizer } from "./HeapSort";
 import { MergeSortVisualizer } from "./MergeSort";
+import { HanoiTowerVisualizer } from "./HanoiTower";
 import gsap from "gsap";
 
 // Texture
@@ -175,6 +176,19 @@ mergeSpotMesh.rotation.x = -Math.PI / 2;
 mergeSpotMesh.receiveShadow = true;
 scene.add(mergeSpotMesh);
 
+const hanoiSpotMesh = new THREE.Mesh(
+  new THREE.PlaneGeometry(3, 3),
+  new THREE.MeshStandardMaterial({
+    color: "gold",
+    transparent: true,
+    opacity: 0.5,
+  })
+);
+hanoiSpotMesh.position.set(10, 0.005, 0);
+hanoiSpotMesh.rotation.x = -Math.PI / 2;
+hanoiSpotMesh.receiveShadow = true;
+scene.add(hanoiSpotMesh);
+
 const gltfLoader = new GLTFLoader();
 
 const bubbleSortVisualizer = new BubbleSortVisualizer({
@@ -217,6 +231,13 @@ const mergeSortVisualizer = new MergeSortVisualizer({
   x: 0,
   y: -1.3,
   z: 2,
+});
+
+const hanoiTowerVisualizer = new HanoiTowerVisualizer({
+  scene,
+  x: 10,
+  y: -1.3,
+  z: 0,
 });
 
 const player = new Player({
@@ -416,6 +437,31 @@ function draw() {
         console.log("병합 정렬 숨기기");
         mergeSortVisualizer.hide();
         mergeSpotMesh.material.color.set("indigo");
+        gsap.to(camera.position, {
+          duration: 1,
+          y: 5,
+        });
+      }
+
+      if (
+        Math.abs(hanoiSpotMesh.position.x - player.modelMesh.position.x) <
+          1.5 &&
+        Math.abs(hanoiSpotMesh.position.z - player.modelMesh.position.z) < 1.5
+      ) {
+        if (!hanoiTowerVisualizer.visible) {
+          console.log("하노이의 탑 시작");
+          hanoiTowerVisualizer.show();
+          hanoiTowerVisualizer.startHanoiAnimation();
+          hanoiSpotMesh.material.color.set("orange");
+          gsap.to(camera.position, {
+            duration: 1,
+            y: 3,
+          });
+        }
+      } else if (hanoiTowerVisualizer.visible) {
+        console.log("하노이의 탑 숨기기");
+        hanoiTowerVisualizer.hide();
+        hanoiSpotMesh.material.color.set("gold");
         gsap.to(camera.position, {
           duration: 1,
           y: 5,
