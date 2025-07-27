@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { gsap } from "gsap";
+import { textCompletion } from "./TextCompletion.js";
 
 export class SelectionSortVisualizer {
 	constructor(info) {
@@ -17,6 +18,7 @@ export class SelectionSortVisualizer {
 		this.array = [...this.originalArray];
 		this.bars = [];
 		this.group = new THREE.Group();
+		this.completeText = null;
 
 		this.createBars();
 		this.group.position.set(this.x, this.y - 1.5, this.z);
@@ -116,6 +118,9 @@ export class SelectionSortVisualizer {
 		if (!this.shouldStop) {
 			this.bars[n - 1].material.color.set(0x27ae60);
 		}
+		if (!this.shouldStop) {
+			await this.showCompleteText();
+		}
 		this.isAnimating = false;
 	}
 
@@ -193,6 +198,7 @@ export class SelectionSortVisualizer {
 
 	reset() {
 		this.stop();
+		this.hideCompleteText();
 		this.array = [...this.originalArray];
 		
 		// 모든 바 제거
@@ -203,5 +209,13 @@ export class SelectionSortVisualizer {
 		
 		// 새로 생성
 		this.createBars();
+	}
+
+	async showCompleteText() {
+		this.completeText = await textCompletion.createCompleteText(this.group);
+	}
+
+	hideCompleteText() {
+		this.completeText = textCompletion.removeCompleteText(this.group, this.completeText);
 	}
 }

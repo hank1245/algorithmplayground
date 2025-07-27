@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { gsap } from "gsap";
+import { textCompletion } from "./TextCompletion.js";
 
 export class HeapSortVisualizer {
 	constructor(info) {
@@ -17,6 +18,7 @@ export class HeapSortVisualizer {
 		this.array = [...this.originalArray];
 		this.bars = [];
 		this.group = new THREE.Group();
+		this.completeText = null;
 
 		this.createBars();
 		this.group.position.set(this.x, this.y - 1.5, this.z);
@@ -96,6 +98,9 @@ export class HeapSortVisualizer {
 			this.bars[0].material.color.set(0x27ae60);
 		}
 
+		if (!this.shouldStop) {
+			await this.showCompleteText();
+		}
 		this.isAnimating = false;
 	}
 
@@ -245,6 +250,7 @@ export class HeapSortVisualizer {
 
 	reset() {
 		this.stop();
+		this.hideCompleteText();
 		this.array = [...this.originalArray];
 		
 		// 모든 바 제거
@@ -255,5 +261,13 @@ export class HeapSortVisualizer {
 		
 		// 새로 생성
 		this.createBars();
+	}
+
+	async showCompleteText() {
+		this.completeText = await textCompletion.createCompleteText(this.group);
+	}
+
+	hideCompleteText() {
+		this.completeText = textCompletion.removeCompleteText(this.group, this.completeText);
 	}
 }

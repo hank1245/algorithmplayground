@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { gsap } from "gsap";
+import { textCompletion } from "./TextCompletion.js";
 
 export class BubbleSortVisualizer {
 	constructor(info) {
@@ -17,6 +18,7 @@ export class BubbleSortVisualizer {
 		this.array = [...this.originalArray];
 		this.bars = [];
 		this.group = new THREE.Group();
+		this.completeText = null;
 
 		this.createBars();
 		this.group.position.set(this.x, this.y - 1.5, this.z);
@@ -87,6 +89,7 @@ export class BubbleSortVisualizer {
 		// 첫 번째 요소도 녹색으로
 		if (!this.shouldStop) {
 			this.bars[0].material.color.set(0x51cf66);
+			await this.showCompleteText();
 		}
 		this.isAnimating = false;
 	}
@@ -122,6 +125,14 @@ export class BubbleSortVisualizer {
 		return new Promise(resolve => setTimeout(resolve, ms));
 	}
 
+	async showCompleteText() {
+		this.completeText = await textCompletion.createCompleteText(this.group);
+	}
+
+	hideCompleteText() {
+		this.completeText = textCompletion.removeCompleteText(this.group, this.completeText);
+	}
+
 	show() {
 		this.visible = true;
 		gsap.to(this.group.position, {
@@ -150,6 +161,7 @@ export class BubbleSortVisualizer {
 
 	reset() {
 		this.stop();
+		this.hideCompleteText();
 		this.array = [...this.originalArray];
 		
 		// 모든 바 제거

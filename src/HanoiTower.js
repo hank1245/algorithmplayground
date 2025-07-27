@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { gsap } from "gsap";
+import { textCompletion } from "./TextCompletion.js";
 
 export class HanoiTowerVisualizer {
     constructor(info) {
@@ -21,6 +22,7 @@ export class HanoiTowerVisualizer {
         this.moves = [];
         this.currentMoveIndex = 0;
         this.animationSpeed = 1;
+        this.completeText = null;
         
         this.group = new THREE.Group();
         this.createTowers();
@@ -133,6 +135,9 @@ export class HanoiTowerVisualizer {
             await this.delay(400 / this.animationSpeed);
         }
         
+        if (this.isAnimating) {
+            await this.showCompleteText();
+        }
         this.isAnimating = false;
     }
     
@@ -189,6 +194,7 @@ export class HanoiTowerVisualizer {
         this.isAnimating = false;
         this.isPaused = false;
         this.currentMoveIndex = 0;
+        this.hideCompleteText();
         
         gsap.to(this.group.position, {
             duration: 0.5,
@@ -198,5 +204,13 @@ export class HanoiTowerVisualizer {
                 this.createTowers();
             }
         });
+    }
+
+    async showCompleteText() {
+        this.completeText = await textCompletion.createCompleteText(this.group);
+    }
+
+    hideCompleteText() {
+        this.completeText = textCompletion.removeCompleteText(this.group, this.completeText);
     }
 }
