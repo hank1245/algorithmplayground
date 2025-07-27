@@ -11,7 +11,7 @@ body {
 
 .algorithm-description {
 	position: fixed;
-	top: 20px;
+	bottom: 20px;
 	right: 20px;
 	width: 320px;
 	max-height: 70vh;

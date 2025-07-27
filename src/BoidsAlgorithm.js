@@ -28,7 +28,7 @@ class Boid {
     // Create a small cone to represent the boid with direction
     const geometry = new THREE.ConeGeometry(0.03, 0.08, 6);
     const material = new THREE.MeshLambertMaterial({
-      color: 0x4ECDC4, // Unified teal color
+      color: 0x4ecdc4, // Unified teal color
     });
     this.mesh = new THREE.Mesh(geometry, material);
     this.mesh.castShadow = true;

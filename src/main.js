@@ -283,8 +283,8 @@ const hanoiTowerVisualizer = new HanoiTowerVisualizer({
 const boidsVisualizer = new BoidsVisualizer({
   scene,
   x: 8,
-  y: -1.3,
-  z: -10,
+  y: -1.8,
+  z: -8,
 });
 
 const player = new Player({
@@ -297,53 +297,56 @@ const player = new Player({
 });
 
 // Description UI elements
-const descriptionElement = document.getElementById('algorithm-description');
-const algorithmNameElement = document.getElementById('algorithm-name');
-const timeComplexityElement = document.getElementById('time-complexity');
-const spaceComplexityElement = document.getElementById('space-complexity');
-const descriptionTextElement = document.getElementById('algorithm-description-text');
-const worksTitleElement = document.getElementById('works-title');
-const howItWorksListElement = document.getElementById('how-it-works-list');
+const descriptionElement = document.getElementById("algorithm-description");
+const algorithmNameElement = document.getElementById("algorithm-name");
+const timeComplexityElement = document.getElementById("time-complexity");
+const spaceComplexityElement = document.getElementById("space-complexity");
+const descriptionTextElement = document.getElementById(
+  "algorithm-description-text"
+);
+const worksTitleElement = document.getElementById("works-title");
+const howItWorksListElement = document.getElementById("how-it-works-list");
 
 let currentAlgorithm = null;
+
 
 function showDescription(algorithmKey) {
   const algorithm = algorithmDescriptions[algorithmKey];
   if (!algorithm || currentAlgorithm === algorithmKey) return;
 
   currentAlgorithm = algorithmKey;
-  
+
   algorithmNameElement.textContent = algorithm.name;
   timeComplexityElement.textContent = algorithm.timeComplexity;
   spaceComplexityElement.textContent = algorithm.spaceComplexity;
   descriptionTextElement.textContent = algorithm.description;
-  
-  // Handle special case for hanoiTower
-  if (algorithmKey === 'hanoiTower') {
-    worksTitleElement.textContent = '규칙:';
-    howItWorksListElement.innerHTML = '';
-    algorithm.rules.forEach(rule => {
-      const li = document.createElement('li');
+
+  // Handle special case for hanoiTower and boids
+  if (algorithmKey === "hanoiTower" || algorithmKey === "boids") {
+    worksTitleElement.textContent = "Rules:";
+    howItWorksListElement.innerHTML = "";
+    algorithm.rules.forEach((rule) => {
+      const li = document.createElement("li");
       li.textContent = rule;
       howItWorksListElement.appendChild(li);
     });
   } else {
-    worksTitleElement.textContent = '작동 방식:';
-    howItWorksListElement.innerHTML = '';
-    algorithm.howItWorks.forEach(step => {
-      const li = document.createElement('li');
+    worksTitleElement.textContent = "How it works:";
+    howItWorksListElement.innerHTML = "";
+    algorithm.howItWorks.forEach((step) => {
+      const li = document.createElement("li");
       li.textContent = step;
       howItWorksListElement.appendChild(li);
     });
   }
-  
-  descriptionElement.classList.remove('hidden');
+
+  descriptionElement.classList.remove("hidden");
 }
 
 function hideDescription() {
   if (!currentAlgorithm) return;
   currentAlgorithm = null;
-  descriptionElement.classList.add('hidden');
+  descriptionElement.classList.add("hidden");
 }
 
 const raycaster = new THREE.Raycaster();
@@ -390,7 +393,7 @@ function draw() {
         Math.abs(destinationPoint.z - player.modelMesh.position.z) < 0.03
       ) {
         player.moving = false;
-        console.log("멈춤");
+        console.log("Stopped");
       }
 
       if (
@@ -398,19 +401,19 @@ function draw() {
         Math.abs(spotMesh.position.z - player.modelMesh.position.z) < 1.5
       ) {
         if (!bubbleSortVisualizer.visible) {
-          console.log("버블 정렬 시작");
+          console.log("Bubble Sort started");
           bubbleSortVisualizer.reset?.();
           bubbleSortVisualizer.show();
           bubbleSortVisualizer.startBubbleSort();
           spotMesh.material.color.set("seagreen");
-          showDescription('bubbleSort');
+          showDescription("bubbleSort");
           gsap.to(camera.position, {
             duration: 1,
             y: 3,
           });
         }
       } else if (bubbleSortVisualizer.visible) {
-        console.log("버블 정렬 숨기기");
+        console.log("Bubble Sort hidden");
         bubbleSortVisualizer.stop?.();
         bubbleSortVisualizer.reset?.();
         bubbleSortVisualizer.hide();
@@ -429,19 +432,19 @@ function draw() {
           1.5
       ) {
         if (!insertionSortVisualizer.visible) {
-          console.log("삽입 정렬 시작");
+          console.log("Insertion Sort started");
           insertionSortVisualizer.reset?.();
           insertionSortVisualizer.show();
           insertionSortVisualizer.startInsertionSort();
           insertionSpotMesh.material.color.set("crimson");
-          showDescription('insertionSort');
+          showDescription("insertionSort");
           gsap.to(camera.position, {
             duration: 1,
             y: 3,
           });
         }
       } else if (insertionSortVisualizer.visible) {
-        console.log("삽입 정렬 숨기기");
+        console.log("Insertion Sort hidden");
         insertionSortVisualizer.stop?.();
         insertionSortVisualizer.reset?.();
         insertionSortVisualizer.hide();
@@ -460,19 +463,19 @@ function draw() {
           1.5
       ) {
         if (!selectionSortVisualizer.visible) {
-          console.log("선택 정렬 시작");
+          console.log("Selection Sort started");
           selectionSortVisualizer.reset?.();
           selectionSortVisualizer.show();
           selectionSortVisualizer.startSelectionSort();
           selectionSpotMesh.material.color.set("magenta");
-          showDescription('selectionSort');
+          showDescription("selectionSort");
           gsap.to(camera.position, {
             duration: 1,
             y: 3,
           });
         }
       } else if (selectionSortVisualizer.visible) {
-        console.log("선택 정렬 숨기기");
+        console.log("Selection Sort hidden");
         selectionSortVisualizer.stop?.();
         selectionSortVisualizer.reset?.();
         selectionSortVisualizer.hide();
@@ -490,19 +493,19 @@ function draw() {
         Math.abs(quickSpotMesh.position.z - player.modelMesh.position.z) < 1.5
       ) {
         if (!quickSortVisualizer.visible) {
-          console.log("퀵 정렬 시작");
+          console.log("Quick Sort started");
           quickSortVisualizer.reset?.();
           quickSortVisualizer.show();
           quickSortVisualizer.startQuickSort();
           quickSpotMesh.material.color.set("cyan");
-          showDescription('quickSort');
+          showDescription("quickSort");
           gsap.to(camera.position, {
             duration: 1,
             y: 3,
           });
         }
       } else if (quickSortVisualizer.visible) {
-        console.log("퀵 정렬 숨기기");
+        console.log("Quick Sort hidden");
         quickSortVisualizer.stop?.();
         quickSortVisualizer.reset?.();
         quickSortVisualizer.hide();
@@ -519,19 +522,19 @@ function draw() {
         Math.abs(heapSpotMesh.position.z - player.modelMesh.position.z) < 1.5
       ) {
         if (!heapSortVisualizer.visible) {
-          console.log("힙 정렬 시작");
+          console.log("Heap Sort started");
           heapSortVisualizer.reset?.();
           heapSortVisualizer.show();
           heapSortVisualizer.startHeapSort();
           heapSpotMesh.material.color.set("chocolate");
-          showDescription('heapSort');
+          showDescription("heapSort");
           gsap.to(camera.position, {
             duration: 1,
             y: 3,
           });
         }
       } else if (heapSortVisualizer.visible) {
-        console.log("힙 정렬 숨기기");
+        console.log("Heap Sort hidden");
         heapSortVisualizer.stop?.();
         heapSortVisualizer.reset?.();
         heapSortVisualizer.hide();
@@ -549,19 +552,19 @@ function draw() {
         Math.abs(mergeSpotMesh.position.z - player.modelMesh.position.z) < 1.5
       ) {
         if (!mergeSortVisualizer.visible) {
-          console.log("병합 정렬 시작");
+          console.log("Merge Sort started");
           mergeSortVisualizer.reset?.();
           mergeSortVisualizer.show();
           mergeSortVisualizer.startMergeSort();
           mergeSpotMesh.material.color.set("purple");
-          showDescription('mergeSort');
+          showDescription("mergeSort");
           gsap.to(camera.position, {
             duration: 1,
             y: 3,
           });
         }
       } else if (mergeSortVisualizer.visible) {
-        console.log("병합 정렬 숨깰기");
+        console.log("Merge Sort hidden");
         mergeSortVisualizer.stop?.();
         mergeSortVisualizer.reset?.();
         mergeSortVisualizer.hide();
@@ -579,18 +582,18 @@ function draw() {
         Math.abs(hanoiSpotMesh.position.z - player.modelMesh.position.z) < 1.5
       ) {
         if (!hanoiTowerVisualizer.visible) {
-          console.log("하노이의 탑 시작");
+          console.log("Tower of Hanoi started");
           hanoiTowerVisualizer.show();
           hanoiTowerVisualizer.startHanoiAnimation();
           hanoiSpotMesh.material.color.set("orange");
-          showDescription('hanoiTower');
+          showDescription("hanoiTower");
           gsap.to(camera.position, {
             duration: 1,
             y: 3,
           });
         }
       } else if (hanoiTowerVisualizer.visible) {
-        console.log("하노이의 탑 숨기기");
+        console.log("Tower of Hanoi hidden");
         hanoiTowerVisualizer.hide();
         hanoiSpotMesh.material.color.set("white");
         hideDescription();
@@ -606,17 +609,17 @@ function draw() {
         Math.abs(boidsSpotMesh.position.z - player.modelMesh.position.z) < 1.5
       ) {
         if (!boidsVisualizer.visible) {
-          console.log("Boids 알고리즘 시작");
+          console.log("Boids Algorithm started");
           boidsVisualizer.show();
           boidsSpotMesh.material.color.set("lightblue");
-          showDescription('boids');
+          showDescription("boids");
           gsap.to(camera.position, {
             duration: 1,
             y: 3,
           });
         }
       } else if (boidsVisualizer.visible) {
-        console.log("Boids 알고리즘 숨기기");
+        console.log("Boids Algorithm hidden");
         boidsVisualizer.hide();
         boidsSpotMesh.material.color.set("white");
         hideDescription();
@@ -712,5 +715,6 @@ canvas.addEventListener("touchmove", (e) => {
     calculateMousePosition(e.touches[0]);
   }
 });
+
 
 draw();
