@@ -1,4 +1,5 @@
 # Algorithm Playground
+<img width="1929" height="852" alt="스크린샷 2025-08-01 오전 8 23 46" src="https://github.com/user-attachments/assets/b736cb49-9873-4b49-92d6-5e06ed40dcb6" />
 
 An interactive 3D visualization platform for learning sorting algorithms and computational concepts. Control a character to explore different algorithm demonstrations in a virtual environment.
 
