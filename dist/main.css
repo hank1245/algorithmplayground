@@ -1,0 +1,134 @@
+body {
+	overflow: hidden;
+	margin: 0;
+	font-family: 'Arial', sans-serif;
+}
+#three-canvas {
+	position: fixed;
+	left: 0;
+	top: 0;
+}
+
+.algorithm-description {
+	position: fixed;
+	bottom: 20px;
+	right: 20px;
+	width: 320px;
+	max-height: 70vh;
+	background: rgba(0, 0, 0, 0.85);
+	color: white;
+	border-radius: 12px;
+	padding: 0;
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+	backdrop-filter: blur(10px);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	overflow-y: auto;
+	transition: all 0.3s ease-in-out;
+	z-index: 1000;
+}
+
+.algorithm-description.hidden {
+	opacity: 0;
+	transform: translateX(100px);
+	pointer-events: none;
+}
+
+.description-header {
+	background: rgba(255, 255, 255, 0.1);
+	padding: 15px 20px;
+	border-radius: 12px 12px 0 0;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.description-header h2 {
+	margin: 0;
+	font-size: 18px;
+	font-weight: 600;
+	color: #fff;
+}
+
+.description-content {
+	padding: 20px;
+}
+
+.complexity-info {
+	margin-bottom: 16px;
+}
+
+.complexity-item {
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 8px;
+	padding: 8px 12px;
+	background: rgba(255, 255, 255, 0.05);
+	border-radius: 6px;
+}
+
+.complexity-label {
+	font-weight: 500;
+	color: #ccc;
+}
+
+.complexity-item span:last-child {
+	font-weight: 600;
+	color: #4CAF50;
+}
+
+.description-text {
+	margin-bottom: 16px;
+}
+
+.description-text p {
+	margin: 0;
+	line-height: 1.6;
+	color: #e0e0e0;
+	font-size: 14px;
+}
+
+.how-it-works h3 {
+	margin: 0 0 12px 0;
+	font-size: 16px;
+	color: #fff;
+	font-weight: 600;
+}
+
+.how-it-works ul {
+	margin: 0;
+	padding-left: 20px;
+	list-style: none;
+}
+
+.how-it-works li {
+	margin-bottom: 8px;
+	line-height: 1.5;
+	color: #e0e0e0;
+	font-size: 13px;
+	position: relative;
+	padding-left: 16px;
+}
+
+.how-it-works li:before {
+	content: "▶";
+	position: absolute;
+	left: 0;
+	color: #4CAF50;
+	font-size: 10px;
+}
+
+.algorithm-description::-webkit-scrollbar {
+	width: 6px;
+}
+
+.algorithm-description::-webkit-scrollbar-track {
+	background: rgba(255, 255, 255, 0.1);
+	border-radius: 3px;
+}
+
+.algorithm-description::-webkit-scrollbar-thumb {
+	background: rgba(255, 255, 255, 0.3);
+	border-radius: 3px;
+}
+
+.algorithm-description::-webkit-scrollbar-thumb:hover {
+	background: rgba(255, 255, 255, 0.5);
+}
