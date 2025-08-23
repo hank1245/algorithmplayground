@@ -1,718 +1,143 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { Player } from "./Player";
-import { BubbleSortVisualizer } from "./BubbleSort";
-import { InsertionSortVisualizer } from "./InsertionSort";
-import { SelectionSortVisualizer } from "./SelectionSort";
-import { QuickSortVisualizer } from "./QuickSort";
-import { HeapSortVisualizer } from "./HeapSort";
-import { MergeSortVisualizer } from "./MergeSort";
-import { HanoiTowerVisualizer } from "./HanoiTower";
-import { BoidsVisualizer } from "./BoidsAlgorithm";
-import { algorithmDescriptions } from "./AlgorithmDescriptions";
+import { BubbleSortVisualizer } from "./algorithms/BubbleSort";
+import { InsertionSortVisualizer } from "./algorithms/InsertionSort";
+import { SelectionSortVisualizer } from "./algorithms/SelectionSort";
+import { QuickSortVisualizer } from "./algorithms/QuickSort";
+import { HeapSortVisualizer } from "./algorithms/HeapSort";
+import { MergeSortVisualizer } from "./algorithms/MergeSort";
+import { HanoiTowerVisualizer } from "./algorithms/HanoiTower";
+import { BoidsVisualizer } from "./algorithms/BoidsAlgorithm";
+import { createWorld } from "./world/setup";
+import { createSpots } from "./world/spots";
+import { createControls } from "./input/controls";
+import { createVisualizerManager } from "./visualizers/manager";
 import gsap from "gsap";
 
-// Texture
-const textureLoader = new THREE.TextureLoader();
-const floorTexture = textureLoader.load("/images/grid.avif");
-floorTexture.wrapS = THREE.RepeatWrapping;
-floorTexture.wrapT = THREE.RepeatWrapping;
-floorTexture.repeat.x = 10;
-floorTexture.repeat.y = 10;
-
-const bubbleSortTexture = textureLoader.load("/images/bubbleSort.avif");
-const insertionSortTexture = textureLoader.load("/images/insertionSort.avif");
-const selectionSortTexture = textureLoader.load("/images/selectionSort.avif");
-const quickSortTexture = textureLoader.load("/images/quickSort.avif");
-const heapSortTexture = textureLoader.load("/images/heapSort.avif");
-const mergeSortTexture = textureLoader.load("/images/mergeSort.avif");
-const hanoiTowerTexture = textureLoader.load("/images/hanoiTower.avif");
-const boidsTexture = textureLoader.load("/images/boids.avif");
-const welcomeTexture = textureLoader.load("/images/welcome.avif");
-
-// Renderer
 const canvas = document.querySelector("#three-canvas");
-const renderer = new THREE.WebGLRenderer({
-  canvas,
-  antialias: true,
-});
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(window.devicePixelRatio > 1 ? 2 : 1);
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+const overlay = document.getElementById("loading-overlay");
 
-// Scene
-const scene = new THREE.Scene();
+// World
+const { scene, camera, cameraBase, renderer, textures, loadingManager } =
+  createWorld(canvas);
 
-// Camera
-const camera = new THREE.OrthographicCamera(
-  -(window.innerWidth / window.innerHeight), // left
-  window.innerWidth / window.innerHeight, // right,
-  1, // top
-  -1, // bottom
-  -1000,
-  1000
-);
+// Spots and floor/pointer
+const { meshes, floor, pointer, spots } = createSpots(scene, textures);
 
-const cameraPosition = new THREE.Vector3(1, 7, 8);
-camera.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z);
-camera.zoom = 0.2;
-camera.updateProjectionMatrix();
-scene.add(camera);
+// Loaders (share loadingManager via GLTFLoader only, FBXLoader uses its own internally)
+const gltfLoader = new GLTFLoader(loadingManager);
 
-// Light
-const ambientLight = new THREE.AmbientLight("white", 0.7);
-scene.add(ambientLight);
-
-const directionalLight = new THREE.DirectionalLight("white", 0.5);
-const directionalLightOriginPosition = new THREE.Vector3(1, 1, 1);
-directionalLight.position.x = directionalLightOriginPosition.x;
-directionalLight.position.y = directionalLightOriginPosition.y;
-directionalLight.position.z = directionalLightOriginPosition.z;
-directionalLight.castShadow = true;
-
-// mapSize 세팅으로 그림자 퀄리티 설정
-directionalLight.shadow.mapSize.width = 2048;
-directionalLight.shadow.mapSize.height = 2048;
-// 그림자 범위
-directionalLight.shadow.camera.left = -100;
-directionalLight.shadow.camera.right = 100;
-directionalLight.shadow.camera.top = 100;
-directionalLight.shadow.camera.bottom = -100;
-directionalLight.shadow.camera.near = -100;
-directionalLight.shadow.camera.far = 100;
-scene.add(directionalLight);
-
-// Mesh
-const meshes = [];
-const floorMesh = new THREE.Mesh(
-  new THREE.PlaneGeometry(100, 100),
-  new THREE.MeshStandardMaterial({
-    map: floorTexture,
-  })
-);
-floorMesh.name = "floor";
-floorMesh.rotation.x = -Math.PI / 2;
-floorMesh.receiveShadow = true;
-scene.add(floorMesh);
-meshes.push(floorMesh);
-
-const pointerMesh = new THREE.Mesh(
-  new THREE.PlaneGeometry(1, 1),
-  new THREE.MeshBasicMaterial({
-    color: "crimson",
-    transparent: true,
-    opacity: 0.5,
-  })
-);
-pointerMesh.rotation.x = -Math.PI / 2;
-pointerMesh.position.y = 0.01;
-pointerMesh.receiveShadow = true;
-scene.add(pointerMesh);
-
-const spotMesh = new THREE.Mesh(
-  new THREE.PlaneGeometry(3, 3),
-  new THREE.MeshStandardMaterial({
-    map: bubbleSortTexture,
-    transparent: true,
-    opacity: 0.8,
-  })
-);
-// 3x3 grid layout spots with center (0,0) empty
-spotMesh.position.set(-8, 0.005, 8);
-spotMesh.rotation.x = -Math.PI / 2;
-spotMesh.receiveShadow = true;
-scene.add(spotMesh);
-
-const insertionSpotMesh = new THREE.Mesh(
-  new THREE.PlaneGeometry(3, 3),
-  new THREE.MeshStandardMaterial({
-    map: insertionSortTexture,
-    transparent: true,
-    opacity: 0.8,
-  })
-);
-insertionSpotMesh.position.set(0, 0.005, 8);
-insertionSpotMesh.rotation.x = -Math.PI / 2;
-insertionSpotMesh.receiveShadow = true;
-scene.add(insertionSpotMesh);
-
-const selectionSpotMesh = new THREE.Mesh(
-  new THREE.PlaneGeometry(3, 3),
-  new THREE.MeshStandardMaterial({
-    map: selectionSortTexture,
-    transparent: true,
-    opacity: 0.8,
-  })
-);
-selectionSpotMesh.position.set(8, 0.005, 8);
-selectionSpotMesh.rotation.x = -Math.PI / 2;
-selectionSpotMesh.receiveShadow = true;
-scene.add(selectionSpotMesh);
-
-const quickSpotMesh = new THREE.Mesh(
-  new THREE.PlaneGeometry(3, 3),
-  new THREE.MeshStandardMaterial({
-    map: quickSortTexture,
-    transparent: true,
-    opacity: 0.8,
-  })
-);
-quickSpotMesh.position.set(-8, 0.005, 0);
-quickSpotMesh.rotation.x = -Math.PI / 2;
-quickSpotMesh.receiveShadow = true;
-scene.add(quickSpotMesh);
-
-const heapSpotMesh = new THREE.Mesh(
-  new THREE.PlaneGeometry(3, 3),
-  new THREE.MeshStandardMaterial({
-    map: heapSortTexture,
-    transparent: true,
-    opacity: 0.8,
-  })
-);
-heapSpotMesh.position.set(8, 0.005, 0);
-heapSpotMesh.rotation.x = -Math.PI / 2;
-heapSpotMesh.receiveShadow = true;
-scene.add(heapSpotMesh);
-
-const mergeSpotMesh = new THREE.Mesh(
-  new THREE.PlaneGeometry(3, 3),
-  new THREE.MeshStandardMaterial({
-    map: mergeSortTexture,
-    transparent: true,
-    opacity: 0.8,
-  })
-);
-mergeSpotMesh.position.set(-8, 0.005, -8);
-mergeSpotMesh.rotation.x = -Math.PI / 2;
-mergeSpotMesh.receiveShadow = true;
-scene.add(mergeSpotMesh);
-
-const hanoiSpotMesh = new THREE.Mesh(
-  new THREE.PlaneGeometry(3, 3),
-  new THREE.MeshStandardMaterial({
-    map: hanoiTowerTexture,
-    transparent: true,
-    opacity: 0.8,
-  })
-);
-hanoiSpotMesh.position.set(0, 0.005, -8);
-hanoiSpotMesh.rotation.x = -Math.PI / 2;
-hanoiSpotMesh.receiveShadow = true;
-scene.add(hanoiSpotMesh);
-
-const boidsSpotMesh = new THREE.Mesh(
-  new THREE.PlaneGeometry(3, 3),
-  new THREE.MeshStandardMaterial({
-    map: boidsTexture,
-    transparent: true,
-    opacity: 0.8,
-  })
-);
-boidsSpotMesh.position.set(8, 0.005, -8);
-boidsSpotMesh.rotation.x = -Math.PI / 2;
-boidsSpotMesh.receiveShadow = true;
-scene.add(boidsSpotMesh);
-
-const welcomeSpotMesh = new THREE.Mesh(
-  new THREE.PlaneGeometry(4, 4),
-  new THREE.MeshStandardMaterial({
-    map: welcomeTexture,
-    transparent: true,
-    opacity: 0.8,
-  })
-);
-welcomeSpotMesh.position.set(0, 0.005, 0);
-welcomeSpotMesh.rotation.x = -Math.PI / 2;
-welcomeSpotMesh.receiveShadow = true;
-scene.add(welcomeSpotMesh);
-
-const gltfLoader = new GLTFLoader();
-
-// 3x3 grid layout with center (0,0) empty - spacing of 8 units
-const bubbleSortVisualizer = new BubbleSortVisualizer({
-  scene,
-  x: -8,
-  y: -1.3,
-  z: 6,
-});
-
-const insertionSortVisualizer = new InsertionSortVisualizer({
-  scene,
-  x: 0,
-  y: -1.3,
-  z: 6,
-});
-
-const selectionSortVisualizer = new SelectionSortVisualizer({
-  scene,
-  x: 8,
-  y: -1.3,
-  z: 6,
-});
-
-const quickSortVisualizer = new QuickSortVisualizer({
-  scene,
-  x: -8,
-  y: -1.3,
-  z: -2,
-});
-
-const heapSortVisualizer = new HeapSortVisualizer({
-  scene,
-  x: 8,
-  y: -1.3,
-  z: -2,
-});
-
-const mergeSortVisualizer = new MergeSortVisualizer({
-  scene,
-  x: -8,
-  y: -1.3,
-  z: -10,
-});
-
-const hanoiTowerVisualizer = new HanoiTowerVisualizer({
-  scene,
-  x: 0,
-  y: -1.3,
-  z: -10,
-});
-
-const boidsVisualizer = new BoidsVisualizer({
-  scene,
-  x: 8,
-  y: -1.8,
-  z: -8,
-});
-
+// Player
 const player = new Player({
   scene,
   meshes,
   gltfLoader,
-  modelSrc: "/models/character.glb", // GLB 모델 경로
-  idleAnimationSrc: "/models/idle.fbx", // Idle FBX 애니메이션 경로
-  walkAnimationSrc: "/models/walk.fbx", // Walk FBX 애니메이션 경로
+  modelSrc: "/models/character.glb",
+  idleAnimationSrc: "/models/idle.fbx",
+  walkAnimationSrc: "/models/walk.fbx",
 });
 
-// Description UI elements
-const descriptionElement = document.getElementById("algorithm-description");
-const algorithmNameElement = document.getElementById("algorithm-name");
-const timeComplexityElement = document.getElementById("time-complexity");
-const spaceComplexityElement = document.getElementById("space-complexity");
-const descriptionTextElement = document.getElementById(
-  "algorithm-description-text"
+// Visualizers
+const visualizers = {
+  bubble: new BubbleSortVisualizer({ scene, x: -8, y: -1.3, z: 6 }),
+  insertion: new InsertionSortVisualizer({ scene, x: 0, y: -1.3, z: 6 }),
+  selection: new SelectionSortVisualizer({ scene, x: 8, y: -1.3, z: 6 }),
+  quick: new QuickSortVisualizer({ scene, x: -8, y: -1.3, z: -2 }),
+  heap: new HeapSortVisualizer({ scene, x: 8, y: -1.3, z: -2 }),
+  merge: new MergeSortVisualizer({ scene, x: -8, y: -1.3, z: -10 }),
+  hanoi: new HanoiTowerVisualizer({ scene, x: 0, y: -1.3, z: -10 }),
+  boids: new BoidsVisualizer({ scene, x: 8, y: -1.8, z: -8 }),
+};
+
+// Controls
+const controls = createControls(canvas, camera, meshes);
+
+// Manager
+const manager = createVisualizerManager(
+  camera,
+  cameraBase,
+  player,
+  spots,
+  visualizers
 );
-const worksTitleElement = document.getElementById("works-title");
-const howItWorksListElement = document.getElementById("how-it-works-list");
 
-let currentAlgorithm = null;
-
-function showDescription(algorithmKey) {
-  const algorithm = algorithmDescriptions[algorithmKey];
-  if (!algorithm || currentAlgorithm === algorithmKey) return;
-
-  currentAlgorithm = algorithmKey;
-
-  algorithmNameElement.textContent = algorithm.name;
-  timeComplexityElement.textContent = algorithm.timeComplexity;
-  spaceComplexityElement.textContent = algorithm.spaceComplexity;
-  descriptionTextElement.textContent = algorithm.description;
-
-  // Handle special case for hanoiTower and boids
-  if (algorithmKey === "hanoiTower" || algorithmKey === "boids") {
-    worksTitleElement.textContent = "Rules:";
-    howItWorksListElement.innerHTML = "";
-    algorithm.rules.forEach((rule) => {
-      const li = document.createElement("li");
-      li.textContent = rule;
-      howItWorksListElement.appendChild(li);
-    });
-  } else {
-    worksTitleElement.textContent = "How it works:";
-    howItWorksListElement.innerHTML = "";
-    algorithm.howItWorks.forEach((step) => {
-      const li = document.createElement("li");
-      li.textContent = step;
-      howItWorksListElement.appendChild(li);
-    });
-  }
-
-  descriptionElement.classList.remove("hidden");
-}
-
-function hideDescription() {
-  if (!currentAlgorithm) return;
-  currentAlgorithm = null;
-  descriptionElement.classList.add("hidden");
-}
-
-const raycaster = new THREE.Raycaster();
-let mouse = new THREE.Vector2();
-let destinationPoint = new THREE.Vector3();
-let angle = 0;
-let isPressed = false; // 마우스를 누르고 있는 상태
-
-// 그리기
+// Animation loop
 const clock = new THREE.Clock();
+let angle = 0;
 
 function draw() {
   const delta = clock.getDelta();
-
   if (player.mixer) player.mixer.update(delta);
 
   if (player.modelMesh) {
     camera.lookAt(player.modelMesh.position);
   }
-
   if (player.modelMesh) {
-    if (isPressed) {
-      raycasting();
-    }
+    if (controls.isPressed())
+      controls.raycasting((hit) => {
+        player.modelMesh.lookAt(hit);
+        player.moving = true;
+        pointer.position.x = hit.x;
+        pointer.position.z = hit.z;
+      });
 
     if (player.moving) {
-      // 걸어가는 상태
       angle = Math.atan2(
-        destinationPoint.z - player.modelMesh.position.z,
-        destinationPoint.x - player.modelMesh.position.x
+        controls.destinationPoint.z - player.modelMesh.position.z,
+        controls.destinationPoint.x - player.modelMesh.position.x
       );
-      player.modelMesh.position.x += Math.cos(angle) * 0.05;
-      player.modelMesh.position.z += Math.sin(angle) * 0.05;
+      // Movement speed (restored slower pace)
+      const speed = 0.035;
+      player.modelMesh.position.x += Math.cos(angle) * speed;
+      player.modelMesh.position.z += Math.sin(angle) * speed;
 
-      camera.position.x = cameraPosition.x + player.modelMesh.position.x;
-      camera.position.z = cameraPosition.z + player.modelMesh.position.z;
+      camera.position.x = cameraBase.x + player.modelMesh.position.x;
+      camera.position.z = cameraBase.z + player.modelMesh.position.z;
 
-      if (player.isReady) {
-        player.fadeToAction(1, 0.2); // Walk 애니메이션으로 전환
-      }
+      if (player.isReady) player.fadeToAction(1, 0.25);
 
       if (
-        Math.abs(destinationPoint.x - player.modelMesh.position.x) < 0.03 &&
-        Math.abs(destinationPoint.z - player.modelMesh.position.z) < 0.03
+        Math.abs(controls.destinationPoint.x - player.modelMesh.position.x) <
+          0.03 &&
+        Math.abs(controls.destinationPoint.z - player.modelMesh.position.z) <
+          0.03
       ) {
         player.moving = false;
-        console.log("Stopped");
-      }
-
-      if (
-        Math.abs(spotMesh.position.x - player.modelMesh.position.x) < 1.5 &&
-        Math.abs(spotMesh.position.z - player.modelMesh.position.z) < 1.5
-      ) {
-        if (!bubbleSortVisualizer.visible) {
-          console.log("Bubble Sort started");
-          bubbleSortVisualizer.reset?.();
-          bubbleSortVisualizer.show();
-          bubbleSortVisualizer.startBubbleSort();
-          spotMesh.material.color.set("seagreen");
-          showDescription("bubbleSort");
-          gsap.to(camera.position, {
-            duration: 1,
-            y: 3,
-          });
-        }
-      } else if (bubbleSortVisualizer.visible) {
-        console.log("Bubble Sort hidden");
-        bubbleSortVisualizer.stop?.();
-        bubbleSortVisualizer.reset?.();
-        bubbleSortVisualizer.hide();
-        spotMesh.material.color.set("white");
-        hideDescription();
-        gsap.to(camera.position, {
-          duration: 1,
-          y: 5,
-        });
-      }
-
-      if (
-        Math.abs(insertionSpotMesh.position.x - player.modelMesh.position.x) <
-          1.5 &&
-        Math.abs(insertionSpotMesh.position.z - player.modelMesh.position.z) <
-          1.5
-      ) {
-        if (!insertionSortVisualizer.visible) {
-          console.log("Insertion Sort started");
-          insertionSortVisualizer.reset?.();
-          insertionSortVisualizer.show();
-          insertionSortVisualizer.startInsertionSort();
-          insertionSpotMesh.material.color.set("crimson");
-          showDescription("insertionSort");
-          gsap.to(camera.position, {
-            duration: 1,
-            y: 3,
-          });
-        }
-      } else if (insertionSortVisualizer.visible) {
-        console.log("Insertion Sort hidden");
-        insertionSortVisualizer.stop?.();
-        insertionSortVisualizer.reset?.();
-        insertionSortVisualizer.hide();
-        insertionSpotMesh.material.color.set("white");
-        hideDescription();
-        gsap.to(camera.position, {
-          duration: 1,
-          y: 5,
-        });
-      }
-
-      if (
-        Math.abs(selectionSpotMesh.position.x - player.modelMesh.position.x) <
-          1.5 &&
-        Math.abs(selectionSpotMesh.position.z - player.modelMesh.position.z) <
-          1.5
-      ) {
-        if (!selectionSortVisualizer.visible) {
-          console.log("Selection Sort started");
-          selectionSortVisualizer.reset?.();
-          selectionSortVisualizer.show();
-          selectionSortVisualizer.startSelectionSort();
-          selectionSpotMesh.material.color.set("magenta");
-          showDescription("selectionSort");
-          gsap.to(camera.position, {
-            duration: 1,
-            y: 3,
-          });
-        }
-      } else if (selectionSortVisualizer.visible) {
-        console.log("Selection Sort hidden");
-        selectionSortVisualizer.stop?.();
-        selectionSortVisualizer.reset?.();
-        selectionSortVisualizer.hide();
-        selectionSpotMesh.material.color.set("white");
-        hideDescription();
-        gsap.to(camera.position, {
-          duration: 1,
-          y: 5,
-        });
-      }
-
-      if (
-        Math.abs(quickSpotMesh.position.x - player.modelMesh.position.x) <
-          1.5 &&
-        Math.abs(quickSpotMesh.position.z - player.modelMesh.position.z) < 1.5
-      ) {
-        if (!quickSortVisualizer.visible) {
-          console.log("Quick Sort started");
-          quickSortVisualizer.reset?.();
-          quickSortVisualizer.show();
-          quickSortVisualizer.startQuickSort();
-          quickSpotMesh.material.color.set("cyan");
-          showDescription("quickSort");
-          gsap.to(camera.position, {
-            duration: 1,
-            y: 3,
-          });
-        }
-      } else if (quickSortVisualizer.visible) {
-        console.log("Quick Sort hidden");
-        quickSortVisualizer.stop?.();
-        quickSortVisualizer.reset?.();
-        quickSortVisualizer.hide();
-        quickSpotMesh.material.color.set("white");
-        hideDescription();
-        gsap.to(camera.position, {
-          duration: 1,
-          y: 5,
-        });
-      }
-
-      if (
-        Math.abs(heapSpotMesh.position.x - player.modelMesh.position.x) < 1.5 &&
-        Math.abs(heapSpotMesh.position.z - player.modelMesh.position.z) < 1.5
-      ) {
-        if (!heapSortVisualizer.visible) {
-          console.log("Heap Sort started");
-          heapSortVisualizer.reset?.();
-          heapSortVisualizer.show();
-          heapSortVisualizer.startHeapSort();
-          heapSpotMesh.material.color.set("chocolate");
-          showDescription("heapSort");
-          gsap.to(camera.position, {
-            duration: 1,
-            y: 3,
-          });
-        }
-      } else if (heapSortVisualizer.visible) {
-        console.log("Heap Sort hidden");
-        heapSortVisualizer.stop?.();
-        heapSortVisualizer.reset?.();
-        heapSortVisualizer.hide();
-        heapSpotMesh.material.color.set("white");
-        hideDescription();
-        gsap.to(camera.position, {
-          duration: 1,
-          y: 5,
-        });
-      }
-
-      if (
-        Math.abs(mergeSpotMesh.position.x - player.modelMesh.position.x) <
-          1.5 &&
-        Math.abs(mergeSpotMesh.position.z - player.modelMesh.position.z) < 1.5
-      ) {
-        if (!mergeSortVisualizer.visible) {
-          console.log("Merge Sort started");
-          mergeSortVisualizer.reset?.();
-          mergeSortVisualizer.show();
-          mergeSortVisualizer.startMergeSort();
-          mergeSpotMesh.material.color.set("purple");
-          showDescription("mergeSort");
-          gsap.to(camera.position, {
-            duration: 1,
-            y: 3,
-          });
-        }
-      } else if (mergeSortVisualizer.visible) {
-        console.log("Merge Sort hidden");
-        mergeSortVisualizer.stop?.();
-        mergeSortVisualizer.reset?.();
-        mergeSortVisualizer.hide();
-        mergeSpotMesh.material.color.set("white");
-        hideDescription();
-        gsap.to(camera.position, {
-          duration: 1,
-          y: 5,
-        });
-      }
-
-      if (
-        Math.abs(hanoiSpotMesh.position.x - player.modelMesh.position.x) <
-          1.5 &&
-        Math.abs(hanoiSpotMesh.position.z - player.modelMesh.position.z) < 1.5
-      ) {
-        if (!hanoiTowerVisualizer.visible) {
-          console.log("Tower of Hanoi started");
-          hanoiTowerVisualizer.show();
-          hanoiTowerVisualizer.startHanoiAnimation();
-          hanoiSpotMesh.material.color.set("orange");
-          showDescription("hanoiTower");
-          gsap.to(camera.position, {
-            duration: 1,
-            y: 3,
-          });
-        }
-      } else if (hanoiTowerVisualizer.visible) {
-        console.log("Tower of Hanoi hidden");
-        hanoiTowerVisualizer.hide();
-        hanoiSpotMesh.material.color.set("white");
-        hideDescription();
-        gsap.to(camera.position, {
-          duration: 1,
-          y: 5,
-        });
-      }
-
-      if (
-        Math.abs(boidsSpotMesh.position.x - player.modelMesh.position.x) <
-          1.5 &&
-        Math.abs(boidsSpotMesh.position.z - player.modelMesh.position.z) < 1.5
-      ) {
-        if (!boidsVisualizer.visible) {
-          console.log("Boids Algorithm started");
-          boidsVisualizer.show();
-          boidsSpotMesh.material.color.set("lightblue");
-          showDescription("boids");
-          gsap.to(camera.position, {
-            duration: 1,
-            y: 3,
-          });
-        }
-      } else if (boidsVisualizer.visible) {
-        console.log("Boids Algorithm hidden");
-        boidsVisualizer.hide();
-        boidsSpotMesh.material.color.set("white");
-        hideDescription();
-        gsap.to(camera.position, {
-          duration: 1,
-          y: 5,
-        });
       }
     } else {
-      // 서 있는 상태
-      if (player.isReady) {
-        player.fadeToAction(0, 0.2); // Idle 애니메이션으로 전환
-      }
+      if (player.isReady) player.fadeToAction(0, 0.25);
     }
+    // Proximity visualizers
+    manager.update();
   }
 
   renderer.render(scene, camera);
   renderer.setAnimationLoop(draw);
 }
 
-function checkIntersects() {
-  // raycaster.setFromCamera(mouse, camera);
+// Loading overlay: hide after first frame and when player is ready
+let firstFrameRendered = false;
+loadingManager.onLoad = () => {
+  // Wait one frame to ensure textures are bound
+  requestAnimationFrame(() => {
+    firstFrameRendered = true;
+    maybeHideOverlay();
+  });
+};
 
-  const intersects = raycaster.intersectObjects(meshes);
-  for (const item of intersects) {
-    if (item.object.name === "floor") {
-      destinationPoint.x = item.point.x;
-      destinationPoint.y = 0.3;
-      destinationPoint.z = item.point.z;
-      player.modelMesh.lookAt(destinationPoint);
-
-      // console.log(item.point)
-
-      player.moving = true;
-
-      pointerMesh.position.x = destinationPoint.x;
-      pointerMesh.position.z = destinationPoint.z;
-    }
-    break;
+function maybeHideOverlay() {
+  if (firstFrameRendered && player.isReady && overlay) {
+    overlay.classList.add("hidden");
   }
 }
 
-function setSize() {
-  camera.left = -(window.innerWidth / window.innerHeight);
-  camera.right = window.innerWidth / window.innerHeight;
-  camera.top = 1;
-  camera.bottom = -1;
-
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.render(scene, camera);
-}
-
-// 이벤트
-window.addEventListener("resize", setSize);
-
-// 마우스 좌표를 three.js에 맞게 변환
-function calculateMousePosition(e) {
-  mouse.x = (e.clientX / canvas.clientWidth) * 2 - 1;
-  mouse.y = -((e.clientY / canvas.clientHeight) * 2 - 1);
-}
-
-// 변환된 마우스 좌표를 이용해 래이캐스팅
-function raycasting() {
-  raycaster.setFromCamera(mouse, camera);
-  checkIntersects();
-}
-
-// 마우스 이벤트
-canvas.addEventListener("mousedown", (e) => {
-  isPressed = true;
-  calculateMousePosition(e);
-});
-canvas.addEventListener("mouseup", () => {
-  isPressed = false;
-});
-canvas.addEventListener("mousemove", (e) => {
-  if (isPressed) {
-    calculateMousePosition(e);
+// Poll player readiness briefly
+const readyInterval = setInterval(() => {
+  if (player.isReady) {
+    clearInterval(readyInterval);
+    maybeHideOverlay();
   }
-});
-
-// 터치 이벤트
-canvas.addEventListener("touchstart", (e) => {
-  isPressed = true;
-  calculateMousePosition(e.touches[0]);
-});
-canvas.addEventListener("touchend", () => {
-  isPressed = false;
-});
-canvas.addEventListener("touchmove", (e) => {
-  if (isPressed) {
-    calculateMousePosition(e.touches[0]);
-  }
-});
+}, 100);
 
 draw();
