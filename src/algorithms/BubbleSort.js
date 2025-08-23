@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { gsap } from "gsap";
 import { textCompletion } from "../ui/TextCompletion.js";
 
-// Color palette (reduced state changes)
+// Color palette
 const COLOR_BASE = 0x4a90e2; // base
 const COLOR_HIGHLIGHT = 0xff6b6b; // compare
 const COLOR_DONE = 0x51cf66; // sorted
@@ -79,7 +79,6 @@ export class BubbleSortVisualizer {
         this.bars[j].material.color.set(COLOR_BASE);
         this.bars[j + 1].material.color.set(COLOR_BASE);
       }
-      // 패스 종료 시 확정 요소만 DONE 표시
       if (!this.shouldStop) this.bars[n - 1 - i].material.color.set(COLOR_DONE);
     }
 

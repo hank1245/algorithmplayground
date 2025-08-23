@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-// Create floor, pointer, and the 3x3 grid of "spots" with textures
+// Create floor, pointer, and the 3x3 grid of spots with textures
 export function createSpots(scene, textures) {
   const meshes = [];
 

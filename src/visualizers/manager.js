@@ -39,7 +39,6 @@ export function createVisualizerManager(
       spot.material.color.set("white");
       hideDescription();
       gsap.to(camera.position, { duration: 1, y: 5 });
-      // Ensure fresh state next time: reset after hide finishes
       if (key !== "boids") {
         gsap.delayedCall(0.6, () => {
           if (!v.visible) v.reset?.();
@@ -49,7 +48,6 @@ export function createVisualizerManager(
   }
 
   function keyMapToDescKey(key) {
-    // same keys except small differences
     if (key === "bubble") return "bubbleSort";
     if (key === "insertion") return "insertionSort";
     if (key === "selection") return "selectionSort";

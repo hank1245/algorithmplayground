@@ -25,7 +25,6 @@ export class Player {
       this.modelMesh.visible = false; // 애니메이션 로드 전까지 숨김
 
       // 초기 회전값 설정 (정면을 바라보도록)
-      // 모델에 따라 Y축 회전이 필요할 수 있습니다
       this.modelMesh.rotation.y = 0;
       this.modelMesh.rotation.x = 0;
       this.modelMesh.rotation.z = 0;

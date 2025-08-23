@@ -37,7 +37,6 @@ class TextCompletionHelper {
       parentGroup.add(mesh);
       return mesh;
     } catch (e) {
-      // Safe no-op on failure
       return null;
     }
   }
