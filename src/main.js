@@ -14,21 +14,21 @@ import gsap from "gsap";
 
 // Texture
 const textureLoader = new THREE.TextureLoader();
-const floorTexture = textureLoader.load("/images/grid.png");
+const floorTexture = textureLoader.load("/images/grid.avif");
 floorTexture.wrapS = THREE.RepeatWrapping;
 floorTexture.wrapT = THREE.RepeatWrapping;
 floorTexture.repeat.x = 10;
 floorTexture.repeat.y = 10;
 
-const bubbleSortTexture = textureLoader.load("/images/bubbleSort.png");
-const insertionSortTexture = textureLoader.load("/images/insertionSort.png");
-const selectionSortTexture = textureLoader.load("/images/selectionSort.png");
-const quickSortTexture = textureLoader.load("/images/quickSort.png");
-const heapSortTexture = textureLoader.load("/images/heapSort.png");
-const mergeSortTexture = textureLoader.load("/images/mergeSort.png");
-const hanoiTowerTexture = textureLoader.load("/images/hanoiTower.png");
-const boidsTexture = textureLoader.load("/images/boids.png");
-const welcomeTexture = textureLoader.load("/images/welcome.png");
+const bubbleSortTexture = textureLoader.load("/images/bubbleSort.avif");
+const insertionSortTexture = textureLoader.load("/images/insertionSort.avif");
+const selectionSortTexture = textureLoader.load("/images/selectionSort.avif");
+const quickSortTexture = textureLoader.load("/images/quickSort.avif");
+const heapSortTexture = textureLoader.load("/images/heapSort.avif");
+const mergeSortTexture = textureLoader.load("/images/mergeSort.avif");
+const hanoiTowerTexture = textureLoader.load("/images/hanoiTower.avif");
+const boidsTexture = textureLoader.load("/images/boids.avif");
+const welcomeTexture = textureLoader.load("/images/welcome.avif");
 
 // Renderer
 const canvas = document.querySelector("#three-canvas");
@@ -308,7 +308,6 @@ const worksTitleElement = document.getElementById("works-title");
 const howItWorksListElement = document.getElementById("how-it-works-list");
 
 let currentAlgorithm = null;
-
 
 function showDescription(algorithmKey) {
   const algorithm = algorithmDescriptions[algorithmKey];
@@ -715,6 +714,5 @@ canvas.addEventListener("touchmove", (e) => {
     calculateMousePosition(e.touches[0]);
   }
 });
-
 
 draw();
