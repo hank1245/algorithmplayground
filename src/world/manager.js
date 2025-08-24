@@ -1,13 +1,7 @@
 import gsap from "gsap";
 import { showDescription, hideDescription } from "../ui/description";
 
-export function createVisualizerManager(
-  camera,
-  cameraBase,
-  player,
-  spots,
-  visualizers
-) {
+export function createVisualizerManager(camera, player, spots, visualizers) {
   const PROX = 1.5;
 
   function near(spotMesh) {

@@ -11,8 +11,8 @@ import { HanoiTowerVisualizer } from "./algorithms/HanoiTower";
 import { BoidsVisualizer } from "./algorithms/BoidsAlgorithm";
 import { createWorld } from "./world/setup";
 import { createSpots } from "./world/spots";
-import { createControls } from "./input/controls";
-import { createVisualizerManager } from "./visualizers/manager";
+import { createControls } from "./ui/controls";
+import { createVisualizerManager } from "./world/manager";
 import gsap from "gsap";
 
 const canvas = document.querySelector("#three-canvas");
@@ -54,13 +54,7 @@ const visualizers = {
 const controls = createControls(canvas, camera, meshes);
 
 // Manager
-const manager = createVisualizerManager(
-  camera,
-  cameraBase,
-  player,
-  spots,
-  visualizers
-);
+const manager = createVisualizerManager(camera, player, spots, visualizers);
 
 // Animation loop
 const clock = new THREE.Clock();

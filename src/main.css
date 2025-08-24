@@ -9,7 +9,6 @@ body {
   top: 0;
 }
 
-/* Loading overlay */
 .loading-overlay {
   position: fixed;
   inset: 0;
