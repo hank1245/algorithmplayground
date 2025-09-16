@@ -1,14 +1,18 @@
 import * as THREE from "three";
+import gsap from "gsap";
 
 // Create floor, pointer, and the 3x3 grid of spots with textures
 export function createSpots(scene, textures) {
   const meshes = [];
 
   // Floor
-  const floor = new THREE.Mesh(
-    new THREE.PlaneGeometry(100, 100),
-    new THREE.MeshStandardMaterial({ map: textures.floor })
-  );
+  const floorMaterial = new THREE.MeshStandardMaterial({
+    map: textures.floor,
+    color: new THREE.Color(0x111b2c),
+    roughness: 0.95,
+    metalness: 0,
+  });
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), floorMaterial);
   floor.name = "floor";
   floor.rotation.x = -Math.PI / 2;
   floor.receiveShadow = true;
@@ -17,27 +21,70 @@ export function createSpots(scene, textures) {
 
   // Pointer (click indicator)
   const pointer = new THREE.Mesh(
-    new THREE.PlaneGeometry(1, 1),
+    new THREE.RingGeometry(0.35, 0.55, 48),
     new THREE.MeshBasicMaterial({
-      color: "crimson",
+      color: 0x6fffe9,
       transparent: true,
-      opacity: 0.5,
+      opacity: 0.75,
+      side: THREE.DoubleSide,
     })
   );
+  pointer.name = "pointer";
   pointer.rotation.x = -Math.PI / 2;
-  pointer.position.y = 0.01;
-  pointer.receiveShadow = true;
+  pointer.position.y = 0.02;
+  pointer.material.depthWrite = false;
+  pointer.material.depthTest = false;
+  pointer.renderOrder = 5;
+
+  const pointerGlow = new THREE.Mesh(
+    new THREE.CircleGeometry(0.65, 48),
+    new THREE.MeshBasicMaterial({
+      color: 0x6fffe9,
+      transparent: true,
+      opacity: 0.26,
+      side: THREE.DoubleSide,
+    })
+  );
+  pointerGlow.position.z = -0.001;
+  pointerGlow.material.depthWrite = false;
+  pointerGlow.material.depthTest = false;
+  pointerGlow.renderOrder = 4;
+  pointer.add(pointerGlow);
+
   scene.add(pointer);
+
+  gsap.to(pointer.scale, {
+    x: 1.2,
+    y: 1.2,
+    duration: 1.6,
+    ease: "sine.inOut",
+    repeat: -1,
+    yoyo: true,
+  });
+  gsap.to(pointer.material, {
+    opacity: 0.55,
+    duration: 1.6,
+    ease: "sine.inOut",
+    repeat: -1,
+    yoyo: true,
+  });
 
   // Helper to make a spot
   const makeSpot = (map, x, z, size = 3) => {
     const m = new THREE.Mesh(
       new THREE.PlaneGeometry(size, size),
-      new THREE.MeshStandardMaterial({ map, transparent: true, opacity: 0.8 })
+      new THREE.MeshBasicMaterial({
+        map,
+        transparent: true,
+        opacity: 1,
+        toneMapped: false,
+      })
     );
     m.position.set(x, 0.005, z);
     m.rotation.x = -Math.PI / 2;
     m.receiveShadow = true;
+    m.material.depthWrite = false;
+    m.renderOrder = 2;
     scene.add(m);
     return m;
   };

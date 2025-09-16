@@ -14,9 +14,15 @@ export function createWorld(canvas) {
   renderer.setPixelRatio(window.devicePixelRatio > 1 ? 2 : 1);
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 0.78;
 
   // Scene
   const scene = new THREE.Scene();
+  const backgroundColor = new THREE.Color(0x05060b);
+  scene.background = backgroundColor;
+  renderer.setClearColor(backgroundColor, 1);
 
   // Camera (orthographic)
   const camera = new THREE.OrthographicCamera(
@@ -34,22 +40,35 @@ export function createWorld(canvas) {
   scene.add(camera);
 
   // Lights
-  const ambientLight = new THREE.AmbientLight("white", 0.7);
+  const ambientLight = new THREE.AmbientLight(0xe5ecff, 0.16);
   scene.add(ambientLight);
 
-  const directionalLight = new THREE.DirectionalLight("white", 0.5);
-  const directionalLightOriginPosition = new THREE.Vector3(1, 1, 1);
-  directionalLight.position.copy(directionalLightOriginPosition);
+  const hemisphereLight = new THREE.HemisphereLight(0x2f5fff, 0x080412, 0.38);
+  scene.add(hemisphereLight);
+
+  const directionalLight = new THREE.DirectionalLight(0xf6f8ff, 0.68);
+  directionalLight.position.set(18, 28, 18);
   directionalLight.castShadow = true;
   directionalLight.shadow.mapSize.width = 2048;
   directionalLight.shadow.mapSize.height = 2048;
-  directionalLight.shadow.camera.left = -100;
-  directionalLight.shadow.camera.right = 100;
-  directionalLight.shadow.camera.top = 100;
-  directionalLight.shadow.camera.bottom = -100;
-  directionalLight.shadow.camera.near = -100;
-  directionalLight.shadow.camera.far = 100;
+  directionalLight.shadow.camera.left = -40;
+  directionalLight.shadow.camera.right = 40;
+  directionalLight.shadow.camera.top = 40;
+  directionalLight.shadow.camera.bottom = -40;
+  directionalLight.shadow.camera.near = 0.5;
+  directionalLight.shadow.camera.far = 80;
+  directionalLight.shadow.bias = -0.0006;
   scene.add(directionalLight);
+
+  const rimLight = new THREE.DirectionalLight(0x7ec0ff, 0.32);
+  rimLight.position.set(-16, 16, -12);
+  scene.add(rimLight);
+
+  const spotlight = new THREE.SpotLight(0x6fffe9, 0.2, 120, Math.PI / 4.5, 0.9, 1);
+  spotlight.position.set(0, 26, 0);
+  spotlight.target.position.set(0, 0, 0);
+  scene.add(spotlight);
+  scene.add(spotlight.target);
 
   // Export textures used by world spots
   const textures = {
@@ -68,6 +87,15 @@ export function createWorld(canvas) {
   textures.floor.wrapS = THREE.RepeatWrapping;
   textures.floor.wrapT = THREE.RepeatWrapping;
   textures.floor.repeat.set(10, 10);
+  const maxAnisotropy = renderer.capabilities.getMaxAnisotropy();
+  Object.entries(textures).forEach(([key, texture]) => {
+    if (!texture) return;
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.anisotropy = Math.min(12, maxAnisotropy);
+    if (key === "floor") {
+      texture.repeat.set(10, 10);
+    }
+  });
 
   function onResize() {
     camera.left = -(window.innerWidth / window.innerHeight);
